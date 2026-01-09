@@ -1,73 +1,63 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 19.04.2022 18:54:15
-// Design Name: 
-// Module Name: vectors_packer
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
 
-module vectors_packer  
-    #(parameter NBITS = 8, BR_SIZE = 1024)
-    
-    (
-    input logic   [NBITS-1:0] A [BR_SIZE-1 :0],
-    input logic [NBITS-1:0]B[BR_SIZE-1 :0],
-    
-    input logic A_ce0, B_ce0,
-    
-    input clk,
-    
-    output logic [NBITS*BR_SIZE/2-1:0] Awp,
-    output logic [NBITS*BR_SIZE/2-1:0] Bwp
+module mem_adapter #(
+    parameter int N         = 1024,
+    parameter int ELEM_BITS = 10,
+    parameter int PACK      = 128,
+    parameter int ADDR_BITS = 3                                 // log2(1024/128) = 3
+)(
+    input   logic  clk,
+    input   logic  rst,
 
-    
-    );
-    
-    
-            
-    logic [NBITS*BR_SIZE-1:0] Awrapped;
-    logic [NBITS*BR_SIZE-1:0] Bwrapped;
+    // ----------------------------------------------------------
+    // Memorias planas (1024 x 10 bits)
+    // ----------------------------------------------------------
+    input    logic [ELEM_BITS-1:0]  A_flat [N-1:0],
+    input    logic [ELEM_BITS-1:0]  B_flat [N-1:0],
 
-    genvar k;
-        
-    generate 
-        for (k= 0; k < BR_SIZE ; k++) begin
-            always_comb begin
-               Awrapped[(k+1)*NBITS-1: NBITS*k] = A[k];
-               Bwrapped[(k+1)*NBITS-1: NBITS*k] = B[k];
-                
+    // ----------------------------------------------------------
+    // Interfaz hacia IP HLS (puerto A)
+    // ----------------------------------------------------------
+    input   logic                       A_ce0,
+    input   logic [ADDR_BITS-1:0]       A_address0,
+    output  logic [PACK*ELEM_BITS-1:0]  A_q0,
+
+    // ----------------------------------------------------------
+    // Interfaz hacia IP HLS (puerto B)
+    // ----------------------------------------------------------
+    input    logic                                     B_ce0,
+    input    logic [ADDR_BITS-1:0]        B_address0,
+    output logic [PACK*ELEM_BITS-1:0] B_q0
+);
+
+    // ----------------------------------------------------------
+    // Empaquetado síncrono (modelo BRAM)
+    // ----------------------------------------------------------
+    integer i;
+
+    always_ff @(posedge clk) begin
+        if (rst) begin
+            A_q0 <= '0;
+            B_q0 <= '0;
+        end
+        else begin
+            // -------- Puerto A --------
+            if (A_ce0) begin
+                for (i = 0; i < PACK; i++) begin
+                    A_q0[i*ELEM_BITS +: ELEM_BITS]
+                        <= A_flat[A_address0*PACK + i];
+                end
+            end
+
+            // -------- Puerto B --------
+            if (B_ce0) begin
+                for (i = 0; i < PACK; i++) begin
+                    B_q0[i*ELEM_BITS +: ELEM_BITS]
+                        <= B_flat[B_address0*PACK + i];
+                end
             end
         end
-    endgenerate
-    
-    
-    
-    
-    logic  A_syc, B_syc, A_pre, B_pre;
-    
-    always_ff @(posedge clk) begin
-        A_pre <= A_ce0;
-        B_pre <= B_ce0;
-		A_syc <= A_pre;
-		B_syc <= B_pre;
-	end
-    
-    assign Awp = (A_syc)? Awrapped[NBITS*BR_SIZE/2-1:0]:Awrapped[NBITS*BR_SIZE-1:NBITS*BR_SIZE/2];
-    assign Bwp = (B_syc)? Bwrapped[NBITS*BR_SIZE/2-1:0]:Bwrapped[NBITS*BR_SIZE-1:NBITS*BR_SIZE/2];
-    
-    
+    end
+
 endmodule

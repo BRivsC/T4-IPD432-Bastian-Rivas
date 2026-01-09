@@ -5,29 +5,29 @@
 module inputInterface#(
     parameter NUM_ELEMENTOS = 1024
 )(
-    input logic input_domain_clk, reset, rx_ready, begin_write, op_done,
+    input logic input_domain_clk, reset, rx_ready, write_start, op_done,
     input logic [7:0] rx_data,
+
     output logic write_done, command_ready,
-    output logic [7:0] command, //  Sigue formato para CtrlUnit (dir memoria 0A, 1B, write, read, sum, avg, euc dist, man dist y dot prod)
+    output logic [2:0] op_code_out,
     output logic [9:0] data_a [NUM_ELEMENTOS-1:0],
     output logic [9:0] data_b [NUM_ELEMENTOS-1:0]
     );
 
     logic [9:0] write_data;
-    //logic [9:0] write_address;
     logic [6:0] command_out;
     logic [7:0] recv_data;
     logic count_done;
     logic wea_a, wea_b, bram_sel;
     assign recv_data = rx_data;
-    assign command = {bram_sel, command_out}; 
+
 
 
     writeCtrl u_writeCtrl (
         .clk           (input_domain_clk),
         .reset         (reset),
         .rx_ready      (rx_ready),
-        .en            (begin_write),   
+        .en            (write_start),   
         .bram_sel      (bram_sel),
         .rx_data       (recv_data),
         .write_done    (write_done),
@@ -38,15 +38,16 @@ module inputInterface#(
         .dout          (write_data)
     );
 
+
+    logic [9:0] write_address;
     nbit_counter_inc #(
         .N        (10),
         .MAX_COUNT(NUM_ELEMENTOS)
     ) write_address_counter (
-        .clk      (input_domain_clk),
-        .reset    (reset),
-        .inc      (inc),
-        //.count    (write_address), // edit: ahora sólo se usa para contar cuántos elem han sido escritos
-        .count    (),
+        .clk        (input_domain_clk),
+        .reset      (reset),
+        .inc        (inc),
+        .count      (write_address),
         .count_done (count_done)
     );
     
@@ -57,64 +58,42 @@ module inputInterface#(
     assign op_code_in = rx_data[2:0];
     assign bram_info_in = rx_data[7];
 
-
     commandDecoder u_commandDecoder (
         .clk              (input_domain_clk),
         .reset            (reset),
         .rx_ready         (rx_ready),
-        .op_done          (op_done || write_done),  // Se reinicia mientras se manda un dato (conectar op_done a begin_transmision)
+        .op_done          (op_done || write_done),
         .bram_info_in     (bram_info_in),
         .op_code_in       (op_code_in),
         .bram_sel         (bram_sel),
-        .command_out      (command_out), // {en_dot, en_man, en_euc, en_avg, en_sum, en_read, en_write}
+        .cmd_out          (op_code_out), // read: 010, euc: 101, dot: 111
+        .en_write         (en_write),
         .command_ready    (command_ready)
     );
 
-    shiftSipoMem #(
-        .IWIDTH     (10),
-        .NINPUTS    (NUM_ELEMENTOS)
-    ) MemA (
-        .clk        (input_domain_clk),
-        .enable     (wea_a),
-        .in         (write_data),
-        .out        (data_a)
+
+    BRAM #(
+        .NUM_ELEMENTOS    (NUM_ELEMENTOS),
+        .SIZE             (10),
+        .NBITS            (10)
+    ) BRAM_A (
+        .clk              (input_domain_clk),
+        .write            (wea_a),
+        .addr             (write_address),
+        .din              (write_data),
+        .out              (data_a)
     );
 
-    shiftSipoMem #(
-        .IWIDTH     (10),
-        .NINPUTS    (NUM_ELEMENTOS)
-    ) MemB (
-        .clk        (input_domain_clk),
-        .enable     (wea_b),
-        .in         (write_data),
-        .out        (data_b)
+    BRAM #(
+        .NUM_ELEMENTOS    (NUM_ELEMENTOS),
+        .SIZE             (10),
+        .NBITS            (10)
+    ) BRAM_B (
+        .clk              (input_domain_clk),
+        .write            (wea_b),
+        .addr             (write_address),
+        .din              (write_data),
+        .out              (data_b)
     );
-
-/*
-    sipoMem #(
-        .IWIDTH     (10),
-        .NINPUTS    (NUM_ELEMENTOS)
-    ) MemA (
-        .clk        (input_domain_clk),
-        .we         (wea_a),
-        //.rst        (reset),
-        .addr       (write_address),
-        .in         (write_data),
-        .out        (data_a)
-    );
-
-    sipoMem #(
-        .IWIDTH     (10),
-        .NINPUTS    (NUM_ELEMENTOS)
-    ) MemB (
-        .clk        (input_domain_clk),
-        .we         (wea_b),
-        //.rst        (reset),
-        .addr       (write_address),
-        .in         (write_data),
-        .out        (data_b)
-    );
-*/
-
 
 endmodule
