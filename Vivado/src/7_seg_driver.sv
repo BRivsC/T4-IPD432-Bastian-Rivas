@@ -70,19 +70,19 @@ module driver_7_seg_en#(parameter N = 32, count_max = 3, clk_divider_count = 200
 
     
     mux_8_1#(.N(count_max)) mux_8_1(                    //mux para separar digitos
-         .A(BCD_1),
-         .B(BCD_2),
-         .C(BCD_3),
-         .D(BCD_4),
-         
-         .E(BCD_5),
-         .F(BCD_6),
-         .G(BCD_7),
-         .H(BCD_8),
-         
-         .sel(sel),
-         .out(sevenSeg_in)
-         );  
+        .A(BCD_1),
+        .B(BCD_2),
+        .C(BCD_3),
+        .D(BCD_4),
+        
+        .E(BCD_5),
+        .F(BCD_6),
+        .G(BCD_7),
+        .H(BCD_8),
+        
+        .sel(sel),
+        .out(sevenSeg_in)
+    );  
     
     logic [6:0] sevenSeg;
     BCD_to_sevenSeg BCD_to_sevenSeg(    //conversor por digitos

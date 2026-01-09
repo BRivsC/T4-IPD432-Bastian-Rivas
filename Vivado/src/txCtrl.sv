@@ -2,9 +2,9 @@
 
 module txCtrl#(	
     parameter INTER_BYTE_DELAY = 1000000,   // ciclos de reloj de espera entre el envio de 2 bytes consecutivos
-	parameter WAIT_FOR_REGISTER_DELAY = 100 // tiempo de espera para iniciar la transmision luego de registrar el dato a enviar
+    parameter WAIT_FOR_REGISTER_DELAY = 100 // tiempo de espera para iniciar la transmision luego de registrar el dato a enviar
 )(
-    input logic clk, reset, begin_transmission, tx_busy,
+    input logic clk, reset, begin_tx, tx_busy,
     input logic [5:0] enables,  // Formato: {dot, man, euc, avg, sum, read} desde CtrllUnit
     output logic tx_start, tx_sent, register_result32, send_b0, send_b1, send_b2, send_b3
 
@@ -20,53 +20,53 @@ module txCtrl#(
     always_comb begin
         //default assignments
         next_state = state;
-		tx_start = 0;
+        tx_start = 0;
         tx_sent = 0;
         register_result32 = 0;
-		send_b0 = 0;
+        send_b0 = 0;
         send_b1 = 0;
         send_b2 = 0;
         send_b3 = 0;
 
         case (state)
             IDLE: 	begin
-						if(begin_transmission) begin
-							next_state=REGISTER_DATAIN32;
-						end
-					end
+                        if(begin_tx) begin
+                            next_state=REGISTER_DATAIN32;
+                        end
+                    end
 
-			REGISTER_DATAIN32:  begin
+            REGISTER_DATAIN32:  begin
                                     register_result32 = 1;
                                     if(hold_state_timer >= WAIT_FOR_REGISTER_DELAY)
                                         next_state = SEND_BYTE_0;
                                     else
                                         next_state = REGISTER_DATAIN32;
-			end
+            end
 
             SEND_BYTE_0:	begin
                                 send_b0 = 1;
-								tx_start = 1'b1;
-								next_state = DELAY_BYTE_0;
-			end
+                                tx_start = 1'b1;
+                                next_state = DELAY_BYTE_0;
+            end
             
             DELAY_BYTE_0: 	begin // Esperar hasta que se envie el byte menos significativo
-								//if(hold_state_timer >= INTER_BYTE_DELAY) begin
+                                //if(hold_state_timer >= INTER_BYTE_DELAY) begin
                                 if (tx_busy == 0) begin
-									next_state = SEND_BYTE_1;
+                                    next_state = SEND_BYTE_1;
                                 end else begin
                                     next_state = DELAY_BYTE_0;
                                 end
-			end
+            end
 
             SEND_BYTE_1: begin
                             send_b1 = 1;
                             tx_start = 1'b1;
                             next_state = DELAY_BYTE_1;
-			end
+            end
 
             // Todas las instrucciones envían al menos 2 bytes.
             // Euc, Read, Sum y Avg envían solo 2 bytes
-			DELAY_BYTE_1: begin
+            DELAY_BYTE_1: begin
                             if (tx_busy == 0) begin
                                 if(enables[3] || enables[2] || enables[1] || enables[0]) // euc, avg, sum, read
                                     next_state = TX_DONE;
@@ -82,13 +82,6 @@ module txCtrl#(
             end
 
             DELAY_BYTE_2: begin
-                           //if (tx_busy == 0) begin
-                           //    if (enables[4]) // man
-                           //        next_state = TX_DONE;
-                           //    else
-                           //        next_state = SEND_BYTE_3;
-
-                           //end
                             if (tx_busy == 0) 
                                 next_state = SEND_BYTE_3;
             end
@@ -102,7 +95,7 @@ module txCtrl#(
             DELAY_BYTE_3: begin
                             if (tx_busy == 0)
                                 next_state = TX_DONE;
-                        end
+            end
 
             TX_DONE: begin
                             tx_sent = 1;
@@ -116,12 +109,12 @@ module txCtrl#(
 
     //when clock ticks, update the state
     always_ff @(posedge clk) begin
-    	if(reset)
-    		state <= IDLE;
-    	else
-    		state <= next_state;
-	end
-	
+        if(reset)
+            state <= IDLE;
+        else
+            state <= next_state;
+    end
+    
     // Timer to hold states for a certain period
     always_ff @(posedge clk) begin
         if(reset)
