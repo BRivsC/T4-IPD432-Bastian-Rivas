@@ -2,7 +2,8 @@
 
 module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
     input logic clk, reset,
-    input logic [7:0] op,           // byte con datos de operación. Formato: bram_sel, XXXX, [2:0] op_code
+    input logic [2:0] op_code_in,   // read: 010, euc: 101, dot: 111 desde commandDecoder
+    input logic bram_info_in,       // 0: A, 1: B desde commandDecodere
     input logic op_vld,             // 1 si la operación recibida es válida
     input logic op_done,            // Operación lista
     input logic tx_sent,            // señal de que se envio un dato completo
@@ -20,19 +21,23 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
     
     enum logic [8:0] {IDLE, WRITE, READ, EUC, DOT, STORE, SHIFT_MEM, SENDING} STATE, NEXT_STATE;
     logic [9:0]counter ,counter_next;
-    logic [3:0] op_reg; // Formato: bram_sel, [2:0] op_code
+    logic [2:0] op_reg; // Formato: bram_sel, [2:0] op_code
     logic load_op_reg;  // Actualizar código de operación
     
     // Retener código de operación hasta el siguiente idle
     always_ff @(posedge clk)begin
         if(reset) begin
             STATE <= IDLE;
-            op_reg <= 4'h0;
+            op_reg <= 3'h0;
+            read_mem_sel <= 1'b0;
         end
         else begin
             STATE <= NEXT_STATE;
             counter <= counter_next;
-            if(load_op_reg) op_reg <= {op[7],op[2:0]};
+            if(load_op_reg) begin
+                op_reg <= op_code_in;
+                read_mem_sel <= bram_info_in;
+            end
         end
     end
     assign op_code_out = op_reg[2:0];
@@ -65,10 +70,10 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
                 counter_next = 11'b0; // Contador para coordinar nro de elementos enviados
                 load_op_reg = 1;
                 if(op_vld)begin
-                    if(op[2:0] == 3'b001) NEXT_STATE = WRITE;
-                    else if(op[2:0] == 3'b010) NEXT_STATE = READ;
-                    else if(op[2:0] == 3'b101) NEXT_STATE = EUC_DIST;
-                    else if(op[2:0] == 3'b111) NEXT_STATE = DOT_PROD;
+                    if(op_code_in == 3'b001) NEXT_STATE = WRITE;
+                    else if(op_code_in == 3'b010) NEXT_STATE = READ;
+                    else if(op_code_in == 3'b101) NEXT_STATE = EUC_DIST;
+                    else if(op_code_in == 3'b111) NEXT_STATE = DOT_PROD;
                     else NEXT_STATE = IDLE;
                 end
             end
@@ -81,7 +86,6 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
             
             READ: begin
                 enables = 6'b000001;
-                read_mem_sel = ~op_reg[3];
                 NEXT_STATE = STORE;
                 /*
                 if(t >= 1) begin 
@@ -109,7 +113,7 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
                 // Cargar resultados en memorias
                 load_mem = 1'b1; 
                 //op_code_out = op_reg[2:0] // quizás me genere un multi driven pin
-                read_mem_sel = ~op_reg[3];
+                //read_mem_sel = ~op_reg[3];
                 NEXT_STATE = SENDING;
             end
 

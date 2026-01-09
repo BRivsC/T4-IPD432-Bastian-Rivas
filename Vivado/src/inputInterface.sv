@@ -1,12 +1,12 @@
 `timescale 1ns / 1ps
 // Módulo de interfaz de entrada con memorias, controlador de escritura, decodificador de comandos y contador de direcciones.
+// Versión tarea 4
 
-module sipoInputInterface#(
-    parameter NUM_ELEMENTOS = 8
+module inputInterface#(
+    parameter NUM_ELEMENTOS = 1024
 )(
     input logic input_domain_clk, reset, rx_ready, begin_write, op_done,
     input logic [7:0] rx_data,
-    //input logic [9:0] read_mem_dir,
     output logic write_done, command_ready,
     output logic [7:0] command, //  Sigue formato para CtrlUnit (dir memoria 0A, 1B, write, read, sum, avg, euc dist, man dist y dot prod)
     output logic [9:0] data_a [NUM_ELEMENTOS-1:0],
