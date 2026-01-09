@@ -2,11 +2,11 @@
 
 module byteHandler(
     input logic clk, reset, send_b0, send_b1, send_b2, send_b3, register_result32,
-    input logic [5:0] enables,
+    input logic [2:0] op_code,
     input logic [31:0] result_data,
     output logic en_disp,
     output logic [7:0] tx_data,
-    output logic [31:0] bcd_out
+    output logic [31:0] bcd_out //  se llama bcd pero es hexa
 
     );
     
@@ -72,43 +72,18 @@ module byteHandler(
         end
     end
 
-    logic [31:0] data_32_reg;
-    logic [31:0] data_32_reg_lim;
-    assign data_32_reg = {byte_3, byte_2, byte_1, byte_0};
-/*
-    // Limitar para no mostrar más allá de 99.999.999 en display
-    always_ff @(posedge clk) begin
-        if (reset) begin
-            data_32_reg_lim <= 0;
-        end else begin
-            if (data_32_reg > 32'd9999_9999) begin
-                data_32_reg_lim <= 32'd9999_9999;
-            end else begin
-                data_32_reg_lim <= data_32_reg;
-            end
-        end
-    end
+    assign bcd_out = {byte_3, byte_2, byte_1, byte_0};
 
-    unsigned_to_bcd u_unsigned_to_bcd (
-    .clk        (clk),
-    .reset      (reset),
-    .trigger    (1),
-    .in         (data_32_reg_lim),
-    .idle       (),
-    .bcd        (bcd_out)
-    );
 
-    */
-    
     // Lógica para activar display. Se pasa por un FF también
-    // Activar si se está en euc, man o dot
+    // Activar si se está en euc o dot
     logic en_disp_comb;
 
     always_ff @(posedge clk) begin
         if (reset) begin
             en_disp_comb <= 0;
         end else begin
-                if (enables[5] || enables[4] || enables[3]) begin
+            if (op_code == 3'b101 || op_code == 3'b111) begin
                     en_disp_comb <= 1;
                 end else begin
                     en_disp_comb <= 0;
