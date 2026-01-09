@@ -1,18 +1,15 @@
 `timescale 1ns / 1ps
 
-module txCtrl#(	
-    parameter INTER_BYTE_DELAY = 1000000,   // ciclos de reloj de espera entre el envio de 2 bytes consecutivos
+module txCtrl#(
     parameter WAIT_FOR_REGISTER_DELAY = 100 // tiempo de espera para iniciar la transmision luego de registrar el dato a enviar
 )(
     input logic clk, reset, begin_tx, tx_busy,
-    input logic [5:0] enables,  // Formato: {dot, man, euc, avg, sum, read} desde CtrllUnit
+    input logic [2:0] op_code,
     output logic tx_start, tx_sent, register_result32, send_b0, send_b1, send_b2, send_b3
 
     
     );
     
-    //assign enables = command[5:0];
-    //logic [31:0]  tx_data32;
     logic [31:0]  hold_state_timer;
     enum logic [10:0] {IDLE, REGISTER_DATAIN32, SEND_BYTE_0, DELAY_BYTE_0, SEND_BYTE_1, DELAY_BYTE_1, SEND_BYTE_2, DELAY_BYTE_2, SEND_BYTE_3, DELAY_BYTE_3, TX_DONE} state, next_state;
 
@@ -50,7 +47,6 @@ module txCtrl#(
             end
             
             DELAY_BYTE_0: 	begin // Esperar hasta que se envie el byte menos significativo
-                                //if(hold_state_timer >= INTER_BYTE_DELAY) begin
                                 if (tx_busy == 0) begin
                                     next_state = SEND_BYTE_1;
                                 end else begin
@@ -68,7 +64,7 @@ module txCtrl#(
             // Euc, Read, Sum y Avg envían solo 2 bytes
             DELAY_BYTE_1: begin
                             if (tx_busy == 0) begin
-                                if(enables[3] || enables[2] || enables[1] || enables[0]) // euc, avg, sum, read
+                                if(op_code == 3'b101 || op_code == 3'b100 || op_code == 3'b011 || op_code == 3'b010) // euc, avg, sum, read
                                     next_state = TX_DONE;
                                 else
                                     next_state = SEND_BYTE_2;
@@ -86,7 +82,7 @@ module txCtrl#(
                                 next_state = SEND_BYTE_3;
             end
 
-            SEND_BYTE_3: begin
+            SEND_BYTE_3: begin  //  DotProd envía 4 bytes (resultado de hasta 30 bits!)
                             send_b3 = 1;
                             tx_start = 1'b1;
                             next_state = DELAY_BYTE_3;

@@ -2,13 +2,12 @@
 // Módulo de interfaz de salida con memorias, controlador de transmisión, y driver de 7 segmentos
 
 module outputInterface #(
-    parameter INTER_BYTE_DELAY = 1000000,   // ciclos de reloj de espera entre el envio de 2 bytes consecutivos
     parameter WAIT_FOR_REGISTER_DELAY = 100, // tiempo de espera para iniciar la transmision luego de registrar el dato a enviar
     parameter DISPLAY_DURATION = 100_000  // Duración de cada dígito en el display multiplexado
 )(
-    input logic clk, reset, begin_transmission, tx_busy,
-    input logic [5:0] enables_in,    //  {dot, man, euc, avg, sum, read} desde CtrllUnit
-    input logic [31:0] result_data,
+    input logic clk, reset, begin_tx, tx_busy,
+    input logic [2:0] op_code_in,    //  {read: 010, euc: 101, dot: 111} desde CtrlUnit
+    input logic [31:0] result_data_in,
     
     output logic       tx_start,  tx_sent,
     output logic [6:0] segments,
@@ -18,21 +17,21 @@ module outputInterface #(
 
     logic register_result32, send_b0, send_b1, send_b2, send_b3;
 
-    logic [5:0] enables;
-    assign enables = enables_in;
+    // Renombrado de señales para que la herramienta no conecte un puro cable
+    logic [2:0] op_code;
+    assign op_code = op_code_in;
     
-    logic [31:0] result_data_in;
-    assign result_data_in = result_data;
+    logic [31:0] result_data;
+    assign result_data = result_data_in;
     
     txCtrl #(
-        .INTER_BYTE_DELAY           (INTER_BYTE_DELAY),
         .WAIT_FOR_REGISTER_DELAY    (WAIT_FOR_REGISTER_DELAY)
     ) u_txCtrl (
         .clk                        (clk),
         .reset                      (reset),
-        .begin_transmission         (begin_transmission),
+        .begin_tx                   (begin_tx),
         .tx_busy                    (tx_busy),
-        .enables                    (enables), // Formato: {dot, man, euc, avg, sum, read} desde CtrllUnit
+        .op_code                    (op_code), // {read: 010, euc: 101, dot: 111} desde CtrllUnit
         .tx_start                   (tx_start),
         .tx_sent                    (tx_sent),
         .register_result32          (register_result32),
@@ -52,8 +51,8 @@ module outputInterface #(
         .send_b2              (send_b2),
         .send_b3              (send_b3),
         .register_result32    (register_result32),
-        .enables              (enables_in),
-        .result_data          (result_data_in),
+        .op_code              (op_code),
+        .result_data          (result_data),
         .en_disp              (en_disp),
         .tx_data              (tx_data),
         .bcd_out              (bcd_data)
