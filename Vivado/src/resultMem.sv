@@ -1,20 +1,22 @@
 `timescale 1ns / 1ps
 // Memoria que guarda los resultados en forma vectorial y escalar
-// Por ahora el único escalar es el de manDist
+// Los escalares son Euc y Dot, mientras que el vector es Read
+// Las señales de control importantes vienen del ctrl unit, pero los datos vienen del processing core
+
 module resultMem #(
-    parameter NINPUTS = 8
+    parameter NINPUTS = 1024
 )(
     input [31:0] par_data_in [NINPUTS-1:0],
-    input [31:0] man_data_in,
-    input [5:0] enables,
+    input [31:0] single_data_in,
+    input [2:0] op_code,
     input clk,// rst,
     input load_mem, shift_mem,
 
     output logic [31:0] result_out
     );
 
-    logic [31:0] ser_result;
-    logic [31:0] man_result_ff;
+    logic [31:0] piso_result;
+    logic [31:0] single_data_ff;
 
     pisoMem #(
         .IWIDTH     (32),
@@ -25,25 +27,22 @@ module resultMem #(
         .en         (shift_mem),
         //.rst        (rst),
         .in         (par_data_in),
-        .out        (ser_result)
+        .out        (piso_result)
     );
 
-    // Registro para Manhattan
+    // Registro para dato escalar
     always_ff @(posedge clk) begin
-        //if (rst) begin
-        //    man_result_ff <= 1'b0;
-        //end else
         if (load_mem) begin
-            man_result_ff <= man_data_in;
+            single_data_ff <= single_data_in;
         end
     end
 
     // Seleccionar entre resultado de Manhattan y los otros
     always_comb begin
-        if (enables[0] || enables[1] || enables[2]) begin // read, sum o avg
-            result_out = ser_result;
-        end else begin
-            result_out = man_result_ff;
+        if (op_code == 3'b010 ) begin // read
+            result_out = piso_result;
+        end else begin              // euc o dot 
+            result_out = single_data_ff;
         end
     end
 

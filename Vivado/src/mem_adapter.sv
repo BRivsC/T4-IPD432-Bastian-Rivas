@@ -1,11 +1,10 @@
 `timescale 1ns / 1ps
 
-
 module mem_adapter #(
-    parameter int N         = 1024,
-    parameter int ELEM_BITS = 10,
-    parameter int PACK      = 128,
-    parameter int ADDR_BITS = 3                                 // log2(1024/128) = 3
+    parameter int NUM_ELEMENTOS = 1024,
+    parameter int ELEM_BITS     = 10,
+    parameter int PACK          = 128,
+    parameter int ADDR_BITS     = 3   // log2(1024/128) = 3
 )(
     input   logic  clk,
     input   logic  rst,
@@ -13,8 +12,8 @@ module mem_adapter #(
     // ----------------------------------------------------------
     // Memorias planas (1024 x 10 bits)
     // ----------------------------------------------------------
-    input    logic [ELEM_BITS-1:0]  A_flat [N-1:0],
-    input    logic [ELEM_BITS-1:0]  B_flat [N-1:0],
+    input    logic [ELEM_BITS-1:0]  A_flat [NUM_ELEMENTOS-1:0],
+    input    logic [ELEM_BITS-1:0]  B_flat [NUM_ELEMENTOS-1:0],
 
     // ----------------------------------------------------------
     // Interfaz hacia IP HLS (puerto A)
@@ -26,9 +25,9 @@ module mem_adapter #(
     // ----------------------------------------------------------
     // Interfaz hacia IP HLS (puerto B)
     // ----------------------------------------------------------
-    input    logic                                     B_ce0,
-    input    logic [ADDR_BITS-1:0]        B_address0,
-    output logic [PACK*ELEM_BITS-1:0] B_q0
+    input  logic                        B_ce0,
+    input  logic [ADDR_BITS-1:0]        B_address0,
+    output logic [PACK*ELEM_BITS-1:0]   B_q0
 );
 
     // ----------------------------------------------------------
