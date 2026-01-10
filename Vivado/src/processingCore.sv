@@ -96,7 +96,7 @@ module processingCore #(
       .B_ce0(B_ce0_euc),                                // output wire B_ce0
       .euc_dist_result_ap_vld(euc_dist_result_ap_vld),  // output wire euc_dist_result_ap_vld
       .ap_clk(clk),                                     // input wire ap_clk
-      .ap_rst(),                                        // input wire ap_rst
+      .ap_rst(0),                                        // input wire ap_rst
       .ap_done(euc_done),                               // output wire ap_done
       .ap_idle(),                                       // output wire ap_idle
       .ap_ready(),                                      // output wire ap_ready
@@ -116,7 +116,7 @@ module processingCore #(
       .B_ce0(B_ce0_dot),                                // output wire B_ce0
       .dot_prod_result_ap_vld(dot_prod_result_ap_vld),  // output wire dot_prod_result_ap_vld
       .ap_clk(clk),                                     // input wire ap_clk
-      .ap_rst(),                                        // input wire ap_rst
+      .ap_rst(0),                                       // input wire ap_rst
       .ap_done(dot_done),                               // output wire ap_done
       .ap_idle(),                                       // output wire ap_idle
       .ap_ready(),                                      // output wire ap_ready

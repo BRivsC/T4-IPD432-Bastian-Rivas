@@ -216,22 +216,7 @@ module top_tarea4 #(
     logic [31:0]    single_result;
     logic           euc_start;
     logic           dot_start;
-    /*
-    logic [31:0] par_result [NUM_ELEMENTOS-1:0];
-    logic [31:0] man_result;
 
-    pipelinedProcessingCore #(
-        .NINPUTS(NUM_ELEMENTOS)
-    ) processing_core (
-        .data_A(data_a),
-        .data_B(data_b),
-        .op_code(op_code),
-        .clk(clk_process),
-        .read_mem_sel(read_mem_sel),
-        .par_result(par_result),
-        .man_result(man_result)
-    );
-    */
     processingCore #(
         .NUM_ELEMENTOS          (NUM_ELEMENTOS),
         .FACTOR                 (FACTOR)
@@ -274,62 +259,20 @@ module top_tarea4 #(
         .shift_mem        (shift_mem)            // señal para shiftear memoria PISO a la salida del proc core
     );
 
-/*
-	pipelineCtrlUnit #(
-		.NUM_ELEMENTOS         (NUM_ELEMENTOS)
-    ) ctrl_unit (
-		.clk                   (clk_process),
-		.reset                 (reset_process),
-		.command_ready         (command_ready_dest),
-		.write_done            (write_done_dest),
-		.tx_sent               (tx_sent_dest),
-		.command               (command),
-		.begin_transmission    (op_done_src),
-		.write_start           (write_start_src),
-		.read_mem_sel          (read_mem_sel),
-		.shift_mem             (shift_mem),
-		.load_mem              (load_mem),
-		.op_code               (op_code)
-	);
-*/
-
     // Memoria de salida
     resultMem #(
-        .NINPUTS        (NUM_ELEMENTOS)
-    ) result_mem (
-        .par_data_in    (par_result),
-        .man_data_in    (man_result),
-        .op_code        (op_code),
-        .clk            (clk_process),
-        //.rst            (reset_process),
-        .load_mem       (load_mem),
-        .shift_mem      (shift_mem),
-        .result_out     (resultado)
+        .NINPUTS           (NUM_ELEMENTOS)
+    ) u_resultMem (
+        .par_data_in       (par_result),
+        .single_data_in    (single_result),
+        .op_code           (op_code),
+        .clk               (clk_process),
+        // rst,
+        .load_mem          (load_mem),
+        .shift_mem         (shift_mem),
+        .result_out        (resultado)
     );
 
-
-    // Output Domain
-    /*
-    outputInterface #(
-        .INTER_BYTE_DELAY(1000000),   // ciclos de reloj de espera entre el envio de 2 bytes consecutivos
-        .WAIT_FOR_REGISTER_DELAY(100), // tiempo de espera para iniciar la transmision luego de registrar el dato a enviar
-        .DISPLAY_DURATION(100_000)  // Duración de cada dígito en el display multiplexado
-    )
-    output_interface_instance(
-        .clk(clk_output),
-        .reset(reset_input),
-        .begin_transmission(begin_tx_dest),
-        .tx_busy(tx_busy),
-        .enables_in(op_code),    //  {dot, man, euc, avg, sum, read} desde CtrllUnit
-        .result_data(resultado),
-    
-        .tx_start(tx_start),
-        .tx_sent(tx_sent_src),
-        .segments(SEG),
-        .tx_data(tx_data),
-        .AN(AN)
-    );
-*/
     outputInterface #(
         .WAIT_FOR_REGISTER_DELAY    (100),
         .DISPLAY_DURATION           (100_000)

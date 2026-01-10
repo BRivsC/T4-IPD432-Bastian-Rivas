@@ -60,9 +60,10 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
         begin_tx = 1'b0;
         load_mem = 1'b0;
         shift_mem = 1'b0;
-        read_mem_sel = 0;
+        //read_mem_sel = 0;
         euc_start = 0;
         dot_start = 0;
+        load_op_reg = 0;
         //read_start = 0;
 
         case(STATE)
@@ -72,8 +73,8 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
                 if(op_vld)begin
                     if(op_code_in == 3'b001) NEXT_STATE = WRITE;
                     else if(op_code_in == 3'b010) NEXT_STATE = READ;
-                    else if(op_code_in == 3'b101) NEXT_STATE = EUC_DIST;
-                    else if(op_code_in == 3'b111) NEXT_STATE = DOT_PROD;
+                    else if(op_code_in == 3'b101) NEXT_STATE = EUC;
+                    else if(op_code_in == 3'b111) NEXT_STATE = DOT;
                     else NEXT_STATE = IDLE;
                 end
             end

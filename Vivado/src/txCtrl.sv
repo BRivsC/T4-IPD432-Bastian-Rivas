@@ -10,7 +10,7 @@ module txCtrl#(
     
     );
     
-    logic [31:0]  hold_state_timer;
+    logic [20:0]  hold_state_timer;
     enum logic [10:0] {IDLE, REGISTER_DATAIN32, SEND_BYTE_0, DELAY_BYTE_0, SEND_BYTE_1, DELAY_BYTE_1, SEND_BYTE_2, DELAY_BYTE_2, SEND_BYTE_3, DELAY_BYTE_3, TX_DONE} state, next_state;
 
     // combo logic of FSM

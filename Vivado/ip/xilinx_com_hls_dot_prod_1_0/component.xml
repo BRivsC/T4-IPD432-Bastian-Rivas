@@ -184,7 +184,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>0a8c14e7</spirit:value>
+            <spirit:value>551ff133</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -200,7 +200,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>adf57adc</spirit:value>
+            <spirit:value>a0acf097</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -216,7 +216,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>fcd26e74</spirit:value>
+            <spirit:value>62fc8561</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -232,7 +232,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>3fc0cdf3</spirit:value>
+            <spirit:value>47df5294</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -509,7 +509,7 @@
         <spirit:fileType>verilogSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/verilog/dot_prod_mac_muladd_10s_10s_22s_23_4_1.v</spirit:name>
+        <spirit:name>hdl/verilog/dot_prod_mul_10s_10s_20_1_1.v</spirit:name>
         <spirit:fileType>verilogSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
@@ -530,7 +530,7 @@
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/verilog/dot_prod_mac_muladd_10s_10s_22s_23_4_1.v</spirit:name>
+        <spirit:name>hdl/verilog/dot_prod_mul_10s_10s_20_1_1.v</spirit:name>
         <spirit:fileType>verilogSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
       </spirit:file>
@@ -556,13 +556,13 @@
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/vhdl/dot_prod_mac_muladd_10s_10s_22s_23_4_1.vhd</spirit:name>
+        <spirit:name>hdl/vhdl/dot_prod_mul_10s_10s_20_1_1.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
         <spirit:name>hdl/vhdl/dot_prod.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_ea1d697c</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_be7ee657</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -578,7 +578,7 @@
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/vhdl/dot_prod_mac_muladd_10s_10s_22s_23_4_1.vhd</spirit:name>
+        <spirit:name>hdl/vhdl/dot_prod_mul_10s_10s_20_1_1.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
       </spirit:file>
@@ -620,7 +620,7 @@
       </spirit:file>
     </spirit:fileSet>
   </spirit:fileSets>
-  <spirit:description>Calculador de producto punto, ahora con acumulaciÃ³n parcial. Configurado con un Unroll de 128, Array Partition de 128, dim = 1 y pensado para trabajarse con un clk de 10 ns. Configurado con salida uint32_t</spirit:description>
+  <spirit:description>Calculador de producto punto usando LUTs en lugar de DSPs. Configurado con un Unroll de 128, Array Partition de 128, dim = 1 y pensado para trabajarse con un clk de 10 ns.</spirit:description>
   <spirit:parameters>
     <spirit:parameter>
       <spirit:name>Component_Name</spirit:name>
@@ -640,11 +640,11 @@
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>latency</spirit:name>
-      <spirit:value spirit:id="PARAM_VALUE.latency" spirit:order="4">17</spirit:value>
+      <spirit:value spirit:id="PARAM_VALUE.latency" spirit:order="4">16</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>II</spirit:name>
-      <spirit:value spirit:id="PARAM_VALUE.II" spirit:order="5">18</spirit:value>
+      <spirit:value spirit:id="PARAM_VALUE.II" spirit:order="5">17</spirit:value>
     </spirit:parameter>
   </spirit:parameters>
   <spirit:vendorExtensions>
@@ -657,8 +657,8 @@
       </xilinx:taxonomies>
       <xilinx:displayName>dot_prod</xilinx:displayName>
       <xilinx:definitionSource>HLS</xilinx:definitionSource>
-      <xilinx:coreRevision>2114427785</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2026-01-09T04:06:00Z</xilinx:coreCreationDateTime>
+      <xilinx:coreRevision>2114429313</xilinx:coreRevision>
+      <xilinx:coreCreationDateTime>2026-01-10T05:33:36Z</xilinx:coreCreationDateTime>
       <xilinx:sdxKernelAttributes>
         <xilinx:sdx_kernel>true</xilinx:sdx_kernel>
         <xilinx:sdx_kernel_type>hls</xilinx:sdx_kernel_type>
@@ -667,9 +667,9 @@
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2025.1</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="e583dc1e"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="0481ad9d"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="9c6412a8"/>
       <xilinx:checksum xilinx:scope="ports" xilinx:value="ab846589"/>
-      <xilinx:checksum xilinx:scope="parameters" xilinx:value="27544686"/>
+      <xilinx:checksum xilinx:scope="parameters" xilinx:value="e6c8aa2c"/>
     </xilinx:packagingInfo>
   </spirit:vendorExtensions>
 </spirit:component>
