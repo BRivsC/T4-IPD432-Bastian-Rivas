@@ -8,17 +8,16 @@ module inputInterface#(
     input logic input_domain_clk, reset, rx_ready, write_start, op_done,
     input logic [7:0] rx_data,
 
-    output logic write_done, command_ready,
-    output logic [2:0] op_code_out,
+    output logic write_done, command_ready, bram_sel,
+    output logic [2:0] command_out, // read: 010, euc: 101, dot: 111
     output logic [9:0] data_a [NUM_ELEMENTOS-1:0],
     output logic [9:0] data_b [NUM_ELEMENTOS-1:0]
     );
 
     logic [9:0] write_data;
-    logic [6:0] command_out;
     logic [7:0] recv_data;
     logic count_done;
-    logic wea_a, wea_b, bram_sel;
+    logic wea_a, wea_b;
     assign recv_data = rx_data;
 
 
@@ -66,7 +65,7 @@ module inputInterface#(
         .bram_info_in     (bram_info_in),
         .op_code_in       (op_code_in),
         .bram_sel         (bram_sel),
-        .cmd_out          (op_code_out), // read: 010, euc: 101, dot: 111
+        .cmd_out          (command_out), // read: 010, euc: 101, dot: 111
         .en_write         (en_write),
         .command_ready    (command_ready)
     );

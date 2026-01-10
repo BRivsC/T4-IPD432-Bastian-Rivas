@@ -13,7 +13,7 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
     output logic euc_start,
     output logic dot_start,
     output logic write_start,
-    output logic read_start,
+    //output logic read_start,
     output logic begin_tx,          // señal para iniciar la transmision cuando hay un resultado listo
     output logic load_mem,          // señal para cargar memorias
     output logic shift_mem         // señal para shiftear memoria PISO a la salida del proc core
@@ -63,7 +63,7 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
         read_mem_sel = 0;
         euc_start = 0;
         dot_start = 0;
-        read_start = 0;
+        //read_start = 0;
 
         case(STATE)
             IDLE: begin
@@ -85,7 +85,8 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
             end
             
             READ: begin
-                enables = 6'b000001;
+                //enables = 6'b000001;
+                // Instrucción de lectura se gatilla con el op_code registrado
                 NEXT_STATE = STORE;
                 /*
                 if(t >= 1) begin 

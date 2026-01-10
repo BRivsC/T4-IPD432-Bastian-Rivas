@@ -1,7 +1,10 @@
 `timescale 1ns / 1ps
 
 
-module top_tarea4 #(parameter NUM_ELEMENTOS = 1024)(
+module top_tarea4 #(
+    parameter NUM_ELEMENTOS = 1024,
+    parameter FACTOR = 128
+)(
     input CLK100MHZ,
     input CPU_RESETN,
     input UART_RX_USB,
@@ -11,32 +14,31 @@ module top_tarea4 #(parameter NUM_ELEMENTOS = 1024)(
     output logic [6:0] SEG,
     output logic [7:0] AN
     );
-    
-    logic clk_input;//reloj 100 mhz
-    logic clk_process;//reloj 100 mhz
-    logic clk_output;//reloj 100 mhz
-    logic reset_input;
-    logic reset_process;
-    logic [7:0]rx_data;//byte recibido de uart
-    logic rx_ready;//recepcion de 1 byte de uart terminada
-    
-    logic tx_start;//bit para iniciar transmision
-    logic [7:0]tx_data;//byte de datos a transmitir
-    logic tx_busy;//byte que indica que el canal de envio esta ocupado
 
-    logic [5:0]enables;//flags que indican la operacion a realizar
-    logic [31:0]resultado;//resultado de la operacin del processing core
-    logic begin_write_src, begin_write_dest;
-    logic op_done_src, op_done_dest;
-    logic write_done_src, write_done_dest;
-    logic command_ready_src, command_ready_dest;
-    logic [7:0] command;
-    logic [9:0] data_a [NUM_ELEMENTOS-1:0];
-    logic [9:0] data_b [NUM_ELEMENTOS-1:0];
-    logic tx_sent_src, tx_sent_dest;
-    logic read_mem_sel;
-    logic shift_mem;
-    logic load_mem;
+    logic           clk_input;      // reloj 100 mhz
+    logic           clk_process;    // reloj 100 mhz
+    logic           clk_output;     // reloj 100 mhz
+    logic           reset_input;
+    logic           reset_process;
+    logic [7:0]     rx_data;        // byte recibido de uart
+    logic           rx_ready;       // recepcion de 1 byte de uart terminada
+
+    logic           tx_start;       // bit para iniciar transmision
+    logic [7:0]     tx_data;        // byte de datos a transmitir
+    logic           tx_busy;        // byte que indica que el canal de envio esta ocupado
+
+    logic [2:0]     op_code;        // código de operación desde unidad de control
+    logic [2:0]     command;        // comando decodificado, sigue mismo formato que op_code
+    logic [31:0]    resultado;      // resultado de la operación del processing core
+    logic           write_start_src, write_start_dest;
+    //logic           op_done_src, op_done_dest;
+    logic           write_done_src, write_done_dest;
+    logic           command_ready_src, command_ready_dest;
+
+    logic           tx_sent_src, tx_sent_dest;
+    logic           read_mem_sel;
+    logic           shift_mem;
+    logic           load_mem;
     
     PB_Debouncer reset_in(
         .clk(clk_input),
@@ -70,11 +72,11 @@ module top_tarea4 #(parameter NUM_ELEMENTOS = 1024)(
     .RST_USED              (PL_RST_USED),
     .SIM_ASSERT_CHK        (SIM_ASSERT_CHK)
   )*/ 
-    single_begin_write (
+    single_write_start (
         .src_clk               (clk_process),
-        .src_in                (begin_write_src),
+        .src_in                (write_start_src),
         .dest_clk              (clk_input),
-        .dest_out              (begin_write_dest)
+        .dest_out              (write_start_dest)
     );
     
     xpm_cdc_pulse/* #(
@@ -109,6 +111,22 @@ module top_tarea4 #(parameter NUM_ELEMENTOS = 1024)(
         .dest_pulse            (tx_sent_dest)
     );
     
+    //xpm_cdc_pulse/* #(
+    //.DEST_SYNC_FF          (PL_DEST_SYNC_FF),
+    //.REG_OUTPUT            (PL_REG_OUTPUT),
+    //.RST_USED              (PL_RST_USED),
+    //.SIM_ASSERT_CHK        (SIM_ASSERT_CHK)
+//  )*/ 
+    //pulse_begin_transmision (
+        //.src_clk               (clk_process),
+        //.src_pulse             (op_done_src),
+        //.dest_clk              (clk_output),
+        //.src_rst               (reset_process),
+        //.dest_rst              (reset_input),
+        //.dest_pulse            (op_done_dest)
+    //);
+
+    logic           begin_tx_src, begin_tx_dest;
     xpm_cdc_pulse/* #(
     .DEST_SYNC_FF          (PL_DEST_SYNC_FF),
     .REG_OUTPUT            (PL_REG_OUTPUT),
@@ -117,12 +135,13 @@ module top_tarea4 #(parameter NUM_ELEMENTOS = 1024)(
   )*/ 
     pulse_begin_transmision (
         .src_clk               (clk_process),
-        .src_pulse             (op_done_src),
+        .src_pulse             (begin_tx_src),
         .dest_clk              (clk_output),
         .src_rst               (reset_process),
         .dest_rst              (reset_input),
-        .dest_pulse            (op_done_dest)
+        .dest_pulse            (begin_tx_dest)
     );
+    
     
     xpm_cdc_single /*#(
     .DEST_SYNC_FF          (S_DEST_SYNC_FF),
@@ -159,7 +178,7 @@ module top_tarea4 #(parameter NUM_ELEMENTOS = 1024)(
         .input_domain_clk (clk_input),
         .reset            (reset_input),
         .rx_ready         (rx_ready),
-        .begin_write      (begin_write_dest),
+        .write_start      (write_start_dest),
         .op_done          (op_done_dest),
         .rx_data          (rx_data),
         .write_done       (write_done_src),
@@ -170,7 +189,34 @@ module top_tarea4 #(parameter NUM_ELEMENTOS = 1024)(
     );
     */
 
-    
+    // Input Domain
+    logic bram_sel;
+    inputInterface #(
+        .NUM_ELEMENTOS    (NUM_ELEMENTOS)
+    ) u_inputInterface (
+        .input_domain_clk (clk_input),
+        .reset            (reset_input),
+        .rx_ready         (rx_ready),
+        .write_start      (write_start_dest),
+        .op_done          (op_done_dest),
+        .rx_data          (rx_data),
+        .write_done       (write_done_src),
+        .command_ready    (command_ready_src),
+        .bram_sel         (bram_sel),
+        .command_out      (command),
+        .data_a           (data_a),
+        .data_b           (data_b)
+    );
+
+
+    // Processing Domain
+    logic  [9:0]    data_a [NUM_ELEMENTOS-1:0];
+    logic  [9:0]    data_b [NUM_ELEMENTOS-1:0];
+    logic [31:0]    par_result [NUM_ELEMENTOS-1:0];
+    logic [31:0]    single_result;
+    logic           euc_start;
+    logic           dot_start;
+    /*
     logic [31:0] par_result [NUM_ELEMENTOS-1:0];
     logic [31:0] man_result;
 
@@ -179,13 +225,56 @@ module top_tarea4 #(parameter NUM_ELEMENTOS = 1024)(
     ) processing_core (
         .data_A(data_a),
         .data_B(data_b),
-        .enables(enables),
+        .op_code(op_code),
         .clk(clk_process),
         .read_mem_sel(read_mem_sel),
         .par_result(par_result),
         .man_result(man_result)
     );
+    */
+    processingCore #(
+        .NUM_ELEMENTOS          (NUM_ELEMENTOS),
+        .FACTOR                 (FACTOR)
+    ) u_processingCore (
+        .data_A                 (data_a),
+        .data_B                 (data_b),
+        .op_code_in             (op_code),
+        // read: 010, euc: 101, dot: 111 
+        .clk                    (clk_process),
+        .read_mem_sel           (read_mem_sel),
+        .euc_start              (euc_start),
+        .dot_start              (dot_start),
+        .par_result             (par_result),
+        // Vectores resultado en paralelo
+        .single_result          (single_result),
+        // Resultado de dist euclideana o prod punto
+        .op_done                (op_done),
+        .single_result_valid    ()
+    );
 
+
+    ctrlUnit #(
+        .NUM_ELEMENTOS    (NUM_ELEMENTOS)
+    ) u_ctrlUnit (
+        .clk              (clk_process),
+        .reset            (reset_process),
+        .op_code_in       (command),            // read: 010, euc: 101, dot: 111 desde commandDecoder
+        .bram_info_in     (bram_sel),           // 0: A, 1: B desde commandDecoder
+        .op_vld           (command_ready_dest), // 1 si la operación recibida es válida
+        .op_done          (op_done),            // Operación lista
+        .tx_sent          (tx_sent_dest),            // señal de que se envio un dato completo
+
+        .op_code_out      (op_code),            // Último código de operación registrado
+        .read_mem_sel     (read_mem_sel),       // señal para seleccionar qué memoria leer
+        .euc_start        (euc_start),
+        .dot_start        (dot_start),
+        .write_start      (write_start_src),
+        .begin_tx         (begin_tx_src),            // señal para iniciar la transmision cuando hay un resultado listo
+        .load_mem         (load_mem),            // señal para cargar memorias
+        .shift_mem        (shift_mem)            // señal para shiftear memoria PISO a la salida del proc core
+    );
+
+/*
 	pipelineCtrlUnit #(
 		.NUM_ELEMENTOS         (NUM_ELEMENTOS)
     ) ctrl_unit (
@@ -196,13 +285,13 @@ module top_tarea4 #(parameter NUM_ELEMENTOS = 1024)(
 		.tx_sent               (tx_sent_dest),
 		.command               (command),
 		.begin_transmission    (op_done_src),
-		.begin_write           (begin_write_src),
+		.write_start           (write_start_src),
 		.read_mem_sel          (read_mem_sel),
 		.shift_mem             (shift_mem),
 		.load_mem              (load_mem),
-		.enables               (enables)
+		.op_code               (op_code)
 	);
-
+*/
 
     // Memoria de salida
     resultMem #(
@@ -210,7 +299,7 @@ module top_tarea4 #(parameter NUM_ELEMENTOS = 1024)(
     ) result_mem (
         .par_data_in    (par_result),
         .man_data_in    (man_result),
-        .enables        (enables),
+        .op_code        (op_code),
         .clk            (clk_process),
         //.rst            (reset_process),
         .load_mem       (load_mem),
@@ -219,7 +308,8 @@ module top_tarea4 #(parameter NUM_ELEMENTOS = 1024)(
     );
 
 
-    
+    // Output Domain
+    /*
     outputInterface #(
         .INTER_BYTE_DELAY(1000000),   // ciclos de reloj de espera entre el envio de 2 bytes consecutivos
         .WAIT_FOR_REGISTER_DELAY(100), // tiempo de espera para iniciar la transmision luego de registrar el dato a enviar
@@ -228,9 +318,9 @@ module top_tarea4 #(parameter NUM_ELEMENTOS = 1024)(
     output_interface_instance(
         .clk(clk_output),
         .reset(reset_input),
-        .begin_transmission(op_done_dest),
+        .begin_transmission(begin_tx_dest),
         .tx_busy(tx_busy),
-        .enables_in(enables),    //  {dot, man, euc, avg, sum, read} desde CtrllUnit
+        .enables_in(op_code),    //  {dot, man, euc, avg, sum, read} desde CtrllUnit
         .result_data(resultado),
     
         .tx_start(tx_start),
@@ -238,6 +328,23 @@ module top_tarea4 #(parameter NUM_ELEMENTOS = 1024)(
         .segments(SEG),
         .tx_data(tx_data),
         .AN(AN)
+    );
+*/
+    outputInterface #(
+        .WAIT_FOR_REGISTER_DELAY    (100),
+        .DISPLAY_DURATION           (100_000)
+    ) u_outputInterface (
+        .clk                        (clk_output),
+        .reset                      (reset_input),
+        .begin_tx                   (begin_tx_dest),
+        .tx_busy                    (tx_busy),
+        .op_code_in                 (op_code),          //  {read: 010, euc: 101, dot: 111} desde CtrlUnit
+        .result_data_in             (resultado),
+        .tx_start                   (tx_start),
+        .tx_sent                    (tx_sent_src),
+        .segments                   (SEG),
+        .tx_data                    (tx_data),
+        .AN                         (AN)
     );
 
     // Descomentar esto y lo del constraint para usar el analizador lógico externo
