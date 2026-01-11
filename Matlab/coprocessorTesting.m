@@ -71,7 +71,7 @@ for test = 1:N_TESTS
     %%
     VecA_device = command2dev('readVec','BRAMA', port);
    
-    VecB_device = command2dev('readVec', 'BRAMB', port);
+    VecB_device = command2dev('readVec','BRAMB', port);
    
     %sumVec_device = command2dev('sumVec', port); %realiza la suma elemento a elemento de los vectores almacenados y envia el resultado por la UART
    

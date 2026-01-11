@@ -6,6 +6,7 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
     input logic bram_info_in,       // 0: A, 1: B desde commandDecodere
     input logic op_vld,             // 1 si la operación recibida es válida
     input logic op_done,            // Operación lista
+    input logic write_done,         // señal que indica que se termino toda la operacion de escritura
     input logic tx_sent,            // señal de que se envio un dato completo
     
 
@@ -13,7 +14,7 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
     output logic read_mem_sel,      // señal para seleccionar qué memoria leer
     output logic euc_start,
     output logic dot_start,
-    //output logic write_start,
+    output logic write_start,
     //output logic read_start,
     output logic begin_tx,          // señal para iniciar la transmision cuando hay un resultado listo
     output logic load_mem,          // señal para cargar memorias
@@ -58,7 +59,7 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
     // FSM 
     always_comb begin
         NEXT_STATE = STATE;
-        //write_start = 1'b0;
+        write_start = 1'b0;
         counter_next = counter;
         begin_tx = 1'b0;
         load_mem = 1'b0;
@@ -83,8 +84,9 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
             end
             
             WRITE: begin // Mantenerse en estado de escritura hasta recibir señal de listo
-                //write_start = 1'b1; // esta señal se maneja dentro de la misma inputInterface
-                if(op_done) 
+                write_start = 1'b1; 
+                //if(op_done) 
+                if(write_done) 
                     NEXT_STATE = IDLE;
             end
             

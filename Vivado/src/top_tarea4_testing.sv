@@ -13,7 +13,7 @@ module top_tarea4_testing #(
     //output logic PMOD_UART_RX, PMOD_RX_RDY, PMOD_UART_TX, PMOD_TX_BUSY,
     output logic [6:0] SEG,
     output logic [7:0] AN,
-    output logic [1:0] LED
+    output logic [5:0] LED // Formato: [bram_sel(1 bit)][cmd(3 bits)][command_ready(1 bit)][op_done(1 bit)]
     );
 
     logic           clk_input;      // reloj 100 mhz
@@ -31,7 +31,7 @@ module top_tarea4_testing #(
     logic [2:0]     op_code;        // código de operación desde unidad de control
     logic [2:0]     command;        // comando decodificado, sigue mismo formato que op_code
     logic [31:0]    resultado;      // resultado de la operación del processing core
-    //logic           write_start_src, write_start_dest;
+    logic           write_start_src, write_start_dest;
     logic           op_done_src, op_done_dest;  //  para comunicación entre dominios de entrada y proce
     logic           write_done_src, write_done_dest;
     logic           command_ready_src, command_ready_dest;
@@ -67,18 +67,18 @@ module top_tarea4_testing #(
         .clk_in1(CLK100MHZ)      // input clk_in1
     );
     
-//    xpm_cdc_single/* #(
-//    .DEST_SYNC_FF          (PL_DEST_SYNC_FF),
-//    .REG_OUTPUT            (PL_REG_OUTPUT),
-//    .RST_USED              (PL_RST_USED),
-//    .SIM_ASSERT_CHK        (SIM_ASSERT_CHK)
-//  )*/ 
-//    single_write_start (
-//        .src_clk               (clk_process),
-//        .src_in                (write_start_src),
-//        .dest_clk              (clk_input),
-//        .dest_out              (write_start_dest)
-//    );
+    xpm_cdc_single/* #(
+    .DEST_SYNC_FF          (PL_DEST_SYNC_FF),
+    .REG_OUTPUT            (PL_REG_OUTPUT),
+    .RST_USED              (PL_RST_USED),
+    .SIM_ASSERT_CHK        (SIM_ASSERT_CHK)
+  )*/ 
+    single_write_start (
+        .src_clk               (clk_process),
+        .src_in                (write_start_src),
+        .dest_clk              (clk_input),
+        .dest_out              (write_start_dest)
+    );
     
     xpm_cdc_pulse/* #(
     .DEST_SYNC_FF          (PL_DEST_SYNC_FF),
@@ -206,7 +206,7 @@ module top_tarea4_testing #(
         .input_domain_clk (clk_input),
         .reset            (reset_input),
         .rx_ready         (rx_ready),
-        //.write_start      (write_start_dest),
+        .write_start      (write_start_dest),
         //.op_done          (op_done_dest || begin_tx_dest),
         
         .op_done          (begin_tx_dest),
@@ -215,9 +215,13 @@ module top_tarea4_testing #(
         .command_ready    (command_ready_src),
         .bram_sel         (bram_sel),
         .command_out      (command),
+        .LED_cmd_decoder  (LED[5:2]),
         .data_a           (data_a),
         .data_b           (data_b)
     );
+
+    
+
 
 
 
@@ -260,7 +264,8 @@ module top_tarea4_testing #(
         .read_mem_sel     (read_mem_sel),       // señal para seleccionar qué memoria leer
         .euc_start        (euc_start),
         .dot_start        (dot_start),
-        //.write_start      (write_start_src),
+        .write_start      (write_start_src),
+        .write_done       (write_done_dest),
         .begin_tx         (begin_tx_src),            // señal para iniciar la transmision cuando hay un resultado listo
         .load_mem         (load_mem),            // señal para cargar memorias
         .shift_mem        (shift_mem)            // señal para shiftear memoria PISO a la salida del proc core

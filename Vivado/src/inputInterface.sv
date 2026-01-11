@@ -5,11 +5,12 @@
 module inputInterface#(
     parameter NUM_ELEMENTOS = 1024
 )(
-    input logic input_domain_clk, reset, rx_ready, op_done,
+    input logic input_domain_clk, reset, rx_ready, op_done, write_start,
     input logic [7:0] rx_data,
 
     output logic write_done, command_ready, bram_sel,
     output logic [2:0] command_out, // read: 010, euc: 101, dot: 111
+    output logic [3:0] LED_cmd_decoder,
     output logic [9:0] data_a [NUM_ELEMENTOS-1:0],
     output logic [9:0] data_b [NUM_ELEMENTOS-1:0]
     );
@@ -21,7 +22,7 @@ module inputInterface#(
     assign recv_data = rx_data;
 
 
-    logic write_start;
+    //logic write_start;
     writeCtrl u_writeCtrl (
         .clk           (input_domain_clk),
         .reset         (reset),
@@ -67,7 +68,9 @@ module inputInterface#(
         //.op_code_in       (op_code_in),
         .bram_sel         (bram_sel),
         .cmd_out          (command_out), // read: 010, euc: 101, dot: 111
-        .en_write         (write_start),
+        //.en_write         (write_start),
+        .en_write         (),
+        .LED         (LED_cmd_decoder),
         .command_ready    (command_ready)
     );
 
