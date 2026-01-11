@@ -47,14 +47,14 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
 
     
     // Timer
-    /*
+    
     logic [10:0]t;      //timer para operaciones de estado
     always_ff @(posedge clk) begin
         if(reset) t <= 11'b0;
         else if (STATE != NEXT_STATE) t <= 11'b0;
         else t <= t + 1;
     end
-    */
+    
     // FSM 
     always_comb begin
         NEXT_STATE = STATE;
@@ -91,12 +91,10 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
             READ: begin
                 //enables = 6'b000001;
                 // Instrucción de lectura se gatilla con el op_code registrado
-                NEXT_STATE = STORE;
-                /*
-                if(t >= 1) begin 
+                if(t >= 3) begin // Pequeño delay para la lectura
                     NEXT_STATE = STORE;
                 end
-                */
+
             end
             
             EUC: begin

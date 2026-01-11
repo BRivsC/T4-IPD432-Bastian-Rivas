@@ -208,7 +208,8 @@ module top_tarea4_testing #(
         .rx_ready         (rx_ready),
         //.write_start      (write_start_dest),
         //.op_done          (op_done_dest || begin_tx_dest),
-        .op_done          (op_done_dest || begin_tx_dest),
+        
+        .op_done          (begin_tx_dest),
         .rx_data          (rx_data),
         .write_done       (write_done_src),
         .command_ready    (command_ready_src),

@@ -1,8 +1,9 @@
 `timescale 1ns / 1ps
 
 module commandDecoder(
-	input 	logic clk, reset, rx_ready, op_done, bram_info_in,
-	input 	logic [2:0] op_code_in,
+	input 	logic clk, reset, rx_ready, op_done, //bram_info_in,
+	//input 	logic [2:0] op_code_in,
+	input 	logic [7:0] rx_data,
 	output 	logic bram_sel,
 	output 	logic [2:0] cmd_out, // read: 010, euc: 101, dot: 111
     output  logic en_write,
@@ -10,6 +11,10 @@ module commandDecoder(
 	);
 // Nota: op_code_in y bram_info vienen del byte recibido por rx_data
 // Formato: [bram_sel(1 bit)][unused(4 bits)][op_code_in(3 bits)]
+//logic [2:0] op_code_in;
+//assign op_code_in = rx_data[2:0];
+logic bram_info_in;
+assign bram_info_in = rx_data[7];
 
  //FSM states type:
 enum logic [1:0] {WAIT, DECODE} CurrentState, NextState;
@@ -36,24 +41,35 @@ always_comb begin
 		end
 
 		DECODE: begin
-			case (op_code_in)
-				3'b001: begin // Write2dev
+			case (rx_data)
+				7'b0000_0001: begin // Write2dev A
 					cmd_out = 3'b001;
                     en_write = 1;
 					bram_sel = bram_info_in; // 0 para A, 1 para B. Este va hacia writeCtrl
                     command_ready = 1;
 				end
-				3'b010: begin // ReadVect
+				7'b1000_0001: begin // Write2dev B
+					cmd_out = 3'b001;
+                    en_write = 1;
+					bram_sel = bram_info_in; // 0 para A, 1 para B. Este va hacia writeCtrl
+                    command_ready = 1;
+				end
+				7'b0000_0010: begin // ReadVect A
 					cmd_out = 3'b010;
 					bram_sel = bram_info_in;
                     command_ready = 1;
 				end
-				3'b101: begin // EucDist
+				7'b1000_0010: begin // ReadVect B
+					cmd_out = 3'b010;
+					bram_sel = bram_info_in;
+                    command_ready = 1;
+				end
+				7'b0000_0101: begin // EucDist
                     cmd_out = 3'b101;
                     command_ready = 1;
 				end
 
-				3'b111: begin // DotProd
+				7'b0000_0111: begin // DotProd
                     cmd_out = 3'b111;
                     command_ready = 1;
 				end

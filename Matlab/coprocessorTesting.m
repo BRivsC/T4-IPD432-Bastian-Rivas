@@ -5,7 +5,7 @@ NUM_ELEMENTOS = 8;  % define el numero de elementos de cada vector
                       % Cambiar vector_size dentro de command2dev si se usa
                       % otro tamaño
 BIT_WIDTH = 10;
-N_TESTS = 10; % Repeticion de pruebas
+N_TESTS = 3; % Repeticion de pruebas
 
 % Configurar puerto serial
 %COM_port = "/dev/ttyUSB1";

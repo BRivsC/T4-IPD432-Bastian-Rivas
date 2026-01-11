@@ -54,16 +54,17 @@ module inputInterface#(
     // Formato: [bram_sel(1 bit)][unused(4 bits)][op_code(3 bits)]
     logic [2:0] op_code_in;
     logic bram_info_in;
-    assign op_code_in = rx_data[2:0];
-    assign bram_info_in = rx_data[7];
+    //assign op_code_in = rx_data[2:0];
+    //assign bram_info_in = rx_data[7];
 
     commandDecoder u_commandDecoder (
         .clk              (input_domain_clk),
         .reset            (reset),
         .rx_ready         (rx_ready),
+        .rx_data          (rx_data),
         .op_done          (op_done || write_done),
-        .bram_info_in     (bram_info_in),
-        .op_code_in       (op_code_in),
+        //.bram_info_in     (bram_info_in),
+        //.op_code_in       (op_code_in),
         .bram_sel         (bram_sel),
         .cmd_out          (command_out), // read: 010, euc: 101, dot: 111
         .en_write         (write_start),
