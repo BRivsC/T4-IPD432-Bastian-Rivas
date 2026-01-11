@@ -1,11 +1,11 @@
 clear all; % borra el workspace
 clear; clc;
 %% Configuracion de entorno global
-NUM_ELEMENTOS = 8;  % define el numero de elementos de cada vector
+NUM_ELEMENTOS = 1024;  % define el numero de elementos de cada vector
                       % Cambiar vector_size dentro de command2dev si se usa
                       % otro tamaño
 BIT_WIDTH = 10;
-N_TESTS = 3; % Repeticion de pruebas
+N_TESTS = 100; % Repeticiones de pruebas
 
 % Configurar puerto serial
 %COM_port = "/dev/ttyUSB1";
@@ -47,9 +47,6 @@ for test = 1:N_TESTS
     fclose(h);
     
     %% Calcula valores de referencia para las operaciones, realizadas en forma local en el host
-    %sumVec_host = A+B;
-    %avgVec_host = (A+B)/2;
-    %man_host = sum(abs(A-B));
     euc_host = sqrt(sum((A-B).^2));
     dot_host = dot(A,B);
     
@@ -72,12 +69,6 @@ for test = 1:N_TESTS
     VecA_device = command2dev('readVec','BRAMA', port);
    
     VecB_device = command2dev('readVec','BRAMB', port);
-   
-    %sumVec_device = command2dev('sumVec', port); %realiza la suma elemento a elemento de los vectores almacenados y envia el resultado por la UART
-   
-    %avgVec_device = command2dev('avgVec', port);
-   
-    %man_device = command2dev('manDist', port); %realiza el calculo de la distancia de Manhattan entre dos vectores y envia el resultado por la UART
 
     euc_device = command2dev('eucDist', port); %realiza el calculo de la distancia Euclideana entre dos vectores y envia el resultado por la UART
     
@@ -87,15 +78,12 @@ for test = 1:N_TESTS
     % decision de diseno en el diseno del coprocesador). Si no es 0, indique
     % claramente por que en su informe.
     
-    %sumVec_diff = sum(sumVec_host - sumVec_device);
-    %avgVec_diff = sum(avgVec_host - avgVec_device); % Este suele tener error porque el coprocesador no trabaja con flotantes
-    %man_diff = man_host - man_device;
     euc_diff = euc_host - euc_device;
     dot_diff = dot_host - dot_device;
 
     fprintf("Test %d:\t",test);
-    %fprintf("euc_diff:%d\t dot_diff:%.2f\t\n", euc_diff, dot_diff);
-    fprintf("Euc HW: %.2f\t Euc Gold: %.2f\t Dot HW: %.2f\t DotGold: %.2f\t\n", euc_device, euc_host, dot_device, dot_host);
+    fprintf("euc_diff:%.2f\t dot_diff:%.2f\t\n", euc_diff, dot_diff);
+    %fprintf("Euc HW: %.2f\t Euc Gold: %.2f\t Dot HW: %d\t DotGold: %d\t\n", euc_device, euc_host, dot_device, dot_host);
     
 
 end
