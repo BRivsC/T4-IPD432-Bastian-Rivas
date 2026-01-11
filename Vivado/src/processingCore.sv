@@ -21,8 +21,6 @@ module processingCore #(
     localparam IWIDTH = 10;
     localparam OWIDTH = IWIDTH + $clog2(NUM_ELEMENTOS);
     
-    logic [31:0]result_euc;
-    logic [31:0]result_dot;
     logic [31:0]result_read [NUM_ELEMENTOS-1:0];
 
 
@@ -74,7 +72,7 @@ module processingCore #(
         .ADDR_BITS     (3)
     ) u_mem_adapter (
         .clk           (clk),
-        //.rst           (rst),
+        .rst           (1'b0),
         .A_flat        (data_A), // Memorias planas (1024 x 10 bits)
         .B_flat        (data_B), // Memorias planas (1024 x 10 bits)
         // Interfaz hacia IP HLS (puerto A)

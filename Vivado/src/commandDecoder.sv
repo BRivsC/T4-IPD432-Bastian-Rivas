@@ -25,6 +25,7 @@ always_ff @(posedge clk)
 always_comb begin
 	NextState = WAIT;  //Optional default state assigment
 	bram_sel = 0;
+	en_write = 0;
 	command_ready = 0;
     cmd_out = 3'b000;
 
@@ -47,28 +48,14 @@ always_comb begin
 					bram_sel = bram_info_in;
                     command_ready = 1;
 				end
-				/*
-				3'b011: begin // SumVect
-					en_sum   = 1; 
-				end
-				3'b100: begin // AvgVect
-					en_avg   = 1; 
-				end
-				*/
 				3'b101: begin // EucDist
                     cmd_out = 3'b101;
                     command_ready = 1;
-				//	en_euc   = 1; 
 				end
-				/*
-				3'b110: begin // ManDist
-					en_man   = 1; 
-				end
-				*/
+
 				3'b111: begin // DotProd
                     cmd_out = 3'b111;
                     command_ready = 1;
-				//	en_dot   = 1;
 				end
 				default: begin
 					NextState = WAIT;

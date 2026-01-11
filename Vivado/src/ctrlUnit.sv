@@ -7,12 +7,13 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
     input logic op_vld,             // 1 si la operación recibida es válida
     input logic op_done,            // Operación lista
     input logic tx_sent,            // señal de que se envio un dato completo
+    
 
     output logic [2:0] op_code_out,  // Último código de operación registrado
     output logic read_mem_sel,      // señal para seleccionar qué memoria leer
     output logic euc_start,
     output logic dot_start,
-    output logic write_start,
+    //output logic write_start,
     //output logic read_start,
     output logic begin_tx,          // señal para iniciar la transmision cuando hay un resultado listo
     output logic load_mem,          // señal para cargar memorias
@@ -20,7 +21,7 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
     );
     
     enum logic [8:0] {IDLE, WRITE, READ, EUC, DOT, STORE, SHIFT_MEM, SENDING} STATE, NEXT_STATE;
-    logic [9:0]counter ,counter_next;
+    logic [10:0]counter ,counter_next;
     logic [2:0] op_reg; // Formato: bram_sel, [2:0] op_code
     logic load_op_reg;  // Actualizar código de operación
     
@@ -30,6 +31,8 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
             STATE <= IDLE;
             op_reg <= 3'h0;
             read_mem_sel <= 1'b0;
+            counter <= 0;
+            //counter_next <= 0;
         end
         else begin
             STATE <= NEXT_STATE;
@@ -55,7 +58,7 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
     // FSM 
     always_comb begin
         NEXT_STATE = STATE;
-        write_start = 1'b0;
+        //write_start = 1'b0;
         counter_next = counter;
         begin_tx = 1'b0;
         load_mem = 1'b0;
@@ -80,7 +83,7 @@ module ctrlUnit #(parameter NUM_ELEMENTOS = 1024)(
             end
             
             WRITE: begin // Mantenerse en estado de escritura hasta recibir señal de listo
-                write_start = 1'b1;
+                //write_start = 1'b1; // esta señal se maneja dentro de la misma inputInterface
                 if(op_done) 
                     NEXT_STATE = IDLE;
             end

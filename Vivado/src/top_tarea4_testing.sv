@@ -2,7 +2,7 @@
 
 
 module top_tarea4_testing #(
-    parameter NUM_ELEMENTOS = 1024,
+    parameter NUM_ELEMENTOS = 8,
     parameter FACTOR = 128
 )(
     input CLK100MHZ,
@@ -12,7 +12,8 @@ module top_tarea4_testing #(
     output logic UART_TX_USB,
     //output logic PMOD_UART_RX, PMOD_RX_RDY, PMOD_UART_TX, PMOD_TX_BUSY,
     output logic [6:0] SEG,
-    output logic [7:0] AN
+    output logic [7:0] AN,
+    output logic [1:0] LED
     );
 
     logic           clk_input;      // reloj 100 mhz
@@ -170,7 +171,8 @@ module top_tarea4_testing #(
 		.tx_data      (tx_data),
 		.tx_busy      (tx_busy) //medible
     );
-
+    assign LED[0] = op_done_dest;
+    assign LED[1] = command_ready_dest;
     /*old
     sipoInputInterface #(
         .NUM_ELEMENTOS    (NUM_ELEMENTOS)
@@ -205,7 +207,8 @@ module top_tarea4_testing #(
         .reset            (reset_input),
         .rx_ready         (rx_ready),
         //.write_start      (write_start_dest),
-        .op_done          (op_done_dest),
+        //.op_done          (op_done_dest || begin_tx_dest),
+        .op_done          (op_done_dest || begin_tx_dest),
         .rx_data          (rx_data),
         .write_done       (write_done_src),
         .command_ready    (command_ready_src),
@@ -249,8 +252,7 @@ module top_tarea4_testing #(
         .op_code_in       (command),            // read: 010, euc: 101, dot: 111 desde commandDecoder
         .bram_info_in     (bram_sel),           // 0: A, 1: B desde commandDecoder
         .op_vld           (command_ready_dest), // 1 si el código de operación recibido es válido
-        .op_done          (op_done_src),        // Operación lista. Acá recibe op_done_src porque está en el mismo dominio de clk que el processing core
-        .write_done       (write_done_dest),         // señal de que la escritura en memoria se completó
+        .op_done          (op_done_src || write_done_dest), // Operación lista. Acá recibe op_done_src porque está en el mismo dominio de clk que el processing core
         .tx_sent          (tx_sent_dest),            // señal de que se envio un dato completo
 
         .op_code_out      (op_code),            // Último código de operación registrado

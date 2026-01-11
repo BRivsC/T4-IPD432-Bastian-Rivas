@@ -5,7 +5,7 @@
 module inputInterface#(
     parameter NUM_ELEMENTOS = 1024
 )(
-    input logic input_domain_clk, reset, rx_ready, write_start, op_done,
+    input logic input_domain_clk, reset, rx_ready, op_done,
     input logic [7:0] rx_data,
 
     output logic write_done, command_ready, bram_sel,
@@ -21,7 +21,7 @@ module inputInterface#(
     assign recv_data = rx_data;
 
 
-
+    logic write_start;
     writeCtrl u_writeCtrl (
         .clk           (input_domain_clk),
         .reset         (reset),
@@ -66,7 +66,7 @@ module inputInterface#(
         .op_code_in       (op_code_in),
         .bram_sel         (bram_sel),
         .cmd_out          (command_out), // read: 010, euc: 101, dot: 111
-        .en_write         (en_write),
+        .en_write         (write_start),
         .command_ready    (command_ready)
     );
 
@@ -77,6 +77,7 @@ module inputInterface#(
         .NBITS            (10)
     ) BRAM_A (
         .clk              (input_domain_clk),
+        .rst              (0),
         .write            (wea_a),
         .addr             (write_address),
         .din              (write_data),
@@ -89,6 +90,7 @@ module inputInterface#(
         .NBITS            (10)
     ) BRAM_B (
         .clk              (input_domain_clk),
+        .rst              (0),
         .write            (wea_b),
         .addr             (write_address),
         .din              (write_data),

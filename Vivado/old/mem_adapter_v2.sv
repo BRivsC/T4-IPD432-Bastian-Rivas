@@ -7,7 +7,7 @@ module mem_adapter #(
     parameter ADDR_BITS     = 3   // log2(1024/128) = 3
 )(
     input   logic  clk,
-    input   logic  rst,
+    //input   logic  rst,
 
     // ----------------------------------------------------------
     // Memorias planas (1024 x 10 bits)
@@ -36,10 +36,10 @@ module mem_adapter #(
     integer i;
 
     always_ff @(posedge clk) begin
-        if (rst) begin
-            A_q0 <= '0;
-            B_q0 <= '0;
-        end else begin
+        //if (rst) begin
+        //    A_q0 <= '0;
+        //    B_q0 <= '0;
+        //end else begin
 
             // -------- Puerto A --------
             if (A_ce0) begin
@@ -56,7 +56,23 @@ module mem_adapter #(
                         <= B_flat[(unsigned'(B_address0) * PACK) + i];
                 end
             end
-        end
+
+//            // -------- Puerto A --------
+//            if (A_ce0) begin
+//                for (i = 0; i < PACK; i++) begin
+//                    A_q0[i*ELEM_BITS +: ELEM_BITS]
+//                        <= A_flat[A_address0*PACK + i];
+//                end
+//            end
+
+//            // -------- Puerto B --------
+//            if (B_ce0) begin
+//                for (i = 0; i < PACK; i++) begin
+//                    B_q0[i*ELEM_BITS +: ELEM_BITS]
+//                        <= B_flat[B_address0*PACK + i];
+//                end
+//            end
+        //end
     end
 
 endmodule

@@ -10,7 +10,7 @@ if nargin == 3
     BRAM_in = varargin{2};
 end
 
-vector_size = 1024;
+vector_size = 8;
 baud_rate = 115200;
 
 switch operation_in
