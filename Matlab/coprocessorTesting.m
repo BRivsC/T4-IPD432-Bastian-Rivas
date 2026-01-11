@@ -5,7 +5,7 @@ NUM_ELEMENTOS = 1024;  % define el numero de elementos de cada vector
                       % Cambiar vector_size dentro de command2dev si se usa
                       % otro tamaño
 BIT_WIDTH = 10;
-N_TESTS = 100; % Repeticiones de pruebas
+N_TESTS = 3; % Repeticiones de pruebas
 
 % Configurar puerto serial
 %COM_port = "/dev/ttyUSB1";
@@ -26,15 +26,43 @@ flush(port,"input");
 
 %% Para las pruebas dinamicas, se recomienda incluir el codigo en un loop que le permita probar varias iteraciones de operaciones
 for test = 1:N_TESTS
-    
+    % Acá incluyo una variedad de tests para confirmar distintos aspectos
+    % del diseño. Sugiero descomentar un par A B cada vez usando un N_TESTS
+    % bajo porque son valores fijos.
     %Genera vectores A y B de 1024 elementos con numeros positivos 
     %(puede adaptarse facilmente si usan negativos y positivos).
-    A=ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1;
-    B=ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1;
+    %A=ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1;
+    %B=ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1;
 
-    % Sanity checks: todos 1 o todos 0
-    %A=0*(ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1);
+    % Sanity check: todos 1 o todos 0
+    %A=0*(ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1)+1;
     %B=0*(ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1)+1;
+    
+    %% Check: se están relacionando los elementos correctamente?
+    %A = (0:1023).';
+    %B = ones(1024,1);
+
+    %% Check: se están leyendo todos los bloques?
+    %A = zeros(1024,1);
+    %B = ones(1024,1);
+    %
+    %for k = 0:7
+        %A(k*128+1:(k+1)*128) = k+1;   % Bloques: 1,2,3,...8
+    %end
+
+    % = 128*(1+2+3+4+5+6+7+8) = 128*36 = 4608 si se leen todos 
+    % (1024 elem y 10 bits)
+
+    %% Check: Hay bloques que se estén intercambiando?
+    % Cada bloque de 1280 elementos tiene su propio valor
+    A = (0:1023).';
+    B = A;
+
+
+
+
+
+
 
     %% Guarda vectores A y B (cada uno de una columna de 1024 filas) en un
     %archivo de texto. Cada linea del archivo contiene un elemento.
@@ -61,11 +89,11 @@ for test = 1:N_TESTS
     
     %writeVec escribe un vector almacenado en un archivo de texto en la BRAM indicada por medio de la UART
     write2dev('vectorA.txt','BRAMA',port); 
-    disp('Escrito Vector A');
+
     write2dev('vectorB.txt','BRAMB',port); 
-    disp('Escrito Vector B');
-    %readVec lee el contenido de la BRAM indicada por medio de la UART
     %%
+    %readVec lee el contenido de la BRAM indicada por medio de la UART
+    
     VecA_device = command2dev('readVec','BRAMA', port);
    
     VecB_device = command2dev('readVec','BRAMB', port);
@@ -82,8 +110,9 @@ for test = 1:N_TESTS
     dot_diff = dot_host - dot_device;
 
     fprintf("Test %d:\t",test);
-    fprintf("euc_diff:%.2f\t dot_diff:%.2f\t\n", euc_diff, dot_diff);
-    %fprintf("Euc HW: %.2f\t Euc Gold: %.2f\t Dot HW: %d\t DotGold: %d\t\n", euc_device, euc_host, dot_device, dot_host);
+    fprintf("Euc HW: %.2f\t Euc Gold: %.2f\t Dot HW: %d\t DotGold: %d\t\n", euc_device, euc_host, dot_device, dot_host);
+    fprintf("\teuc_diff:%.2f\t dot_diff:%d\t\n", euc_diff, dot_diff);
+    
     
 
 end
