@@ -29,12 +29,12 @@ for test = 1:N_TESTS
     
     %Genera vectores A y B de 1024 elementos con numeros positivos 
     %(puede adaptarse facilmente si usan negativos y positivos).
-    %A=ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1;
-    %B=ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1;
+    A=ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1;
+    B=ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1;
 
     % Sanity checks: todos 1 o todos 0
-    A=1;
-    B=1;
+    %A=0*(ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1);
+    %B=0*(ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1)+1;
 
     %% Guarda vectores A y B (cada uno de una columna de 1024 filas) en un
     %archivo de texto. Cada linea del archivo contiene un elemento.

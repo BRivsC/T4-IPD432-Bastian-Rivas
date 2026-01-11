@@ -215,7 +215,7 @@ module top_tarea4_testing #(
         .command_ready    (command_ready_src),
         .bram_sel         (bram_sel),
         .command_out      (command),
-        .LED_cmd_decoder  (LED[5:2]),
+        //.LED_cmd_decoder  (LED[5:2]),
         .data_a           (data_a),
         .data_b           (data_b)
     );
@@ -248,7 +248,7 @@ module top_tarea4_testing #(
         .single_result_valid    ()
     );
 
-
+    assign LED[5:2] = {bram_sel, op_code};
     ctrlUnit #(
         .NUM_ELEMENTOS    (NUM_ELEMENTOS)
     ) u_ctrlUnit (
