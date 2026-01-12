@@ -5,7 +5,7 @@ NUM_ELEMENTOS = 1024;  % define el numero de elementos de cada vector
                       % Cambiar vector_size dentro de command2dev si se usa
                       % otro tamaño
 BIT_WIDTH = 10;
-N_TESTS = 3; % Repeticiones de pruebas
+N_TESTS = 10; % Repeticiones de pruebas
 
 % Configurar puerto serial
 %COM_port = "/dev/ttyUSB1";
@@ -30,13 +30,12 @@ for test = 1:N_TESTS
     % del diseño. Sugiero descomentar un par A B cada vez usando un N_TESTS
     % bajo porque son valores fijos.
     %Genera vectores A y B de 1024 elementos con numeros positivos 
-    %(puede adaptarse facilmente si usan negativos y positivos).
     %A=ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1;
     %B=ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1;
 
     %% Sanity check: todos 1 o todos 0
-     %A = ones(1024,1);
-     %B = ones(1024,1);
+    A = ones(1024,1);
+    B = ones(1024,1);
 
     %% Check: se están ordenando los elementos correctamente?
     % A = (0:1023).';
@@ -111,7 +110,7 @@ for test = 1:N_TESTS
 
     fprintf("Test %d:\t",test);
     fprintf("Euc HW: %.2f\t Euc Gold: %.2f\t Dot HW: %d\t DotGold: %d\t\n", euc_device, euc_host, dot_device, dot_host);
-    fprintf("\teuc_diff:%.2f\t dot_diff:%d\t\n", euc_diff, dot_diff);
+    %fprintf("\teuc_diff:%.2f\t dot_diff:%d\t\n", euc_diff, dot_diff);
     
     
 

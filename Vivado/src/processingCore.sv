@@ -146,3 +146,44 @@ module processingCore #(
 
 
 endmodule
+
+
+
+/*
+Templates:
+Distancia Euclideana
+euc_dist_0 your_instance_name (
+  .A_ce0(A_ce0),                                    // output wire A_ce0
+  .B_ce0(B_ce0),                                    // output wire B_ce0
+  .euc_dist_result_ap_vld(euc_dist_result_ap_vld),  // output wire euc_dist_result_ap_vld
+  .ap_clk(ap_clk),                                  // input wire ap_clk
+  .ap_rst(ap_rst),                                  // input wire ap_rst
+  .ap_done(ap_done),                                // output wire ap_done
+  .ap_idle(ap_idle),                                // output wire ap_idle
+  .ap_ready(ap_ready),                              // output wire ap_ready
+  .ap_start(ap_start),                              // input wire ap_start
+  .A_address0(A_address0),                          // output wire [2 : 0] A_address0
+  .A_q0(A_q0),                                      // input wire [1279 : 0] A_q0
+  .B_address0(B_address0),                          // output wire [2 : 0] B_address0
+  .B_q0(B_q0),                                      // input wire [1279 : 0] B_q0
+  .euc_dist_result(euc_dist_result)                // output wire [31 : 0] euc_dist_result
+);
+
+Producto Punto:
+dot_prod_0 your_instance_name (
+  .A_ce0(A_ce0),                                    // output wire A_ce0
+  .B_ce0(B_ce0),                                    // output wire B_ce0
+  .dot_prod_result_ap_vld(dot_prod_result_ap_vld),  // output wire dot_prod_result_ap_vld
+  .ap_clk(ap_clk),                                  // input wire ap_clk
+  .ap_rst(ap_rst),                                  // input wire ap_rst
+  .ap_done(ap_done),                                // output wire ap_done
+  .ap_idle(ap_idle),                                // output wire ap_idle
+  .ap_ready(ap_ready),                              // output wire ap_ready
+  .ap_start(ap_start),                              // input wire ap_start
+  .A_address0(A_address0),                          // output wire [2 : 0] A_address0
+  .A_q0(A_q0),                                      // input wire [1279 : 0] A_q0
+  .B_address0(B_address0),                          // output wire [2 : 0] B_address0
+  .B_q0(B_q0),                                      // input wire [1279 : 0] B_q0
+  .dot_prod_result(dot_prod_result)                // output wire [31 : 0] dot_prod_result
+);
+*/
