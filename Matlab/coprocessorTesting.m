@@ -34,29 +34,29 @@ for test = 1:N_TESTS
     %A=ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1;
     %B=ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1;
 
-    % Sanity check: todos 1 o todos 0
-    %A=0*(ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1)+1;
-    %B=0*(ceil(rand(NUM_ELEMENTOS,1)*2^BIT_WIDTH)-1)+1;
-    
-    %% Check: se están relacionando los elementos correctamente?
-    %A = (0:1023).';
-    %B = ones(1024,1);
+    %% Sanity check: todos 1 o todos 0
+     A = ones(1024,1);
+     B = ones(1024,1);
+
+    %% Check: se están ordenando los elementos correctamente?
+    % A = (0:1023).';
+    % B = ones(1024,1);
 
     %% Check: se están leyendo todos los bloques?
-    %A = zeros(1024,1);
-    %B = ones(1024,1);
-    %
-    %for k = 0:7
-        %A(k*128+1:(k+1)*128) = k+1;   % Bloques: 1,2,3,...8
-    %end
+    % A = zeros(1024,1);
+    % B = ones(1024,1);
+    % 
+    % for k = 0:7
+    %     A(k*128+1:(k+1)*128) = k+1;   % Bloques: 1,2,3,...8
+    % end
 
     % = 128*(1+2+3+4+5+6+7+8) = 128*36 = 4608 si se leen todos 
     % (1024 elem y 10 bits)
 
     %% Check: Hay bloques que se estén intercambiando?
     % Cada bloque de 1280 elementos tiene su propio valor
-    A = (0:1023).';
-    B = A;
+    %A = (0:1023).';
+    %B = A;
 
 
 
