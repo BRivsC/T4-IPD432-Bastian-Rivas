@@ -107,9 +107,9 @@ Esto reorganiza cada vector de entrada en:
 * **8 arreglos**
 * Cada uno de **1280 bits** (128 × 10 bits)
 
-permitiendo leer **128 valores por ciclo** sin replicar completamente la memoria.
+permitiendo leer **128 valores por ciclo** sin replicar completamente la memoria. También permite implementar ambas operaciones sin estar limitado por las DSP, sobre todo considerando que el no utilizar una implica un uso de varias LUTs y FFs.
 
-Se utiliza el reloj por defecto de 10 ns para evitar posibles descoordinaciones entre los medios.
+Se utiliza el reloj por defecto de 10 ns para evitar posibles descoordinaciones entre los medios, pero queda como trabajo futuro utilizar cdc y ver cómo es el desempeño del diseño con un reloj más lento.
 
 ---
 
@@ -122,7 +122,7 @@ El módulo de memoria:
 * Recibe datos secuenciales desde UART
 * Los almacena en BRAM
 * Los reorganiza según cómo se haya reordenado la memoria.
-_Ojo: El módulo de cálculo de producto punto no lee bien la memoria porque omite el primer bloque! (Pierde 128 datos y los restantes los desplaza)_
+_Ojo: El módulo de cálculo de producto punto no lee bien la memoria porque omite el primer bloque! (Pierde 128 datos y los restantes los desplaza). Recomiendo en un futuro repensar la parte de la memoria y quizás aprovechar mejor el pragma HLS INTERFACE_
 
 
 ## 6. Validación funcional
