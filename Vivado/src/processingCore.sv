@@ -60,8 +60,8 @@ module processingCore #(
         end else begin // DotProd
             A_address0 = A_address0_dot;
             B_address0 = B_address0_dot;
-            A_ce0 = A_ce0_dot;
-            B_ce0 = B_ce0_dot;
+            A_ce0 = A_ce0_dot||dot_start;   //  Parche para no perder el 1er ciclo de lectura
+            B_ce0 = B_ce0_dot||dot_start;
         end
     end
 
@@ -107,6 +107,11 @@ module processingCore #(
     );
 
     // Producto punto
+    logic dot_start_delay;  //  Delay porque dotProd parece empezar 1 ciclo antes que mem_adapter
+    always_ff @(posedge clk) begin
+        dot_start_delay <= dot_start;
+    end
+
     logic [31:0] dot_prod_result;
     logic        dot_done;
     dot_prod_0 DotProd (
@@ -118,7 +123,7 @@ module processingCore #(
       .ap_done(dot_done),                               // output wire ap_done
       .ap_idle(),                                       // output wire ap_idle
       .ap_ready(),                                      // output wire ap_ready
-      .ap_start(dot_start),                             // input wire ap_start
+      .ap_start(dot_start_delay),                       // input wire ap_start
       .A_address0(A_address0_dot),                      // output wire [2 : 0] A_address0
       .A_q0(A_q0),                                      // input wire [1279 : 0] A_q0
       .B_address0(B_address0_dot),                      // output wire [2 : 0] B_address0

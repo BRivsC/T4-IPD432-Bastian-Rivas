@@ -31,30 +31,28 @@ module mem_adapter #(
 );
 
     // ----------------------------------------------------------
-    // Empaquetado síncrono (modelo BRAM)
+    // Empaquetado síncrono (datos válidos 1 ciclo después)
     // ----------------------------------------------------------
     integer i;
 
     always_ff @(posedge clk) begin
-        if (rst) begin
-            A_q0 <= '0;
-            B_q0 <= '0;
-        end else begin
+        // Inicialización defensiva
+        A_q0 <= '0;
+        B_q0 <= '0;
 
-            // -------- Puerto A --------
-            if (A_ce0) begin
-                for (i = 0; i < PACK; i++) begin
-                    A_q0[i*ELEM_BITS +: ELEM_BITS]
-                        <= A_flat[(unsigned'(A_address0) * PACK) + i];
-                end
+        // -------- Puerto A --------
+        if (A_ce0) begin
+            for (i = 0; i < PACK; i = i + 1) begin
+                A_q0[i*ELEM_BITS +: ELEM_BITS]
+                    <= A_flat[(unsigned'(A_address0) * PACK) + i];
             end
+        end
 
-            // -------- Puerto B --------
-            if (B_ce0) begin
-                for (i = 0; i < PACK; i++) begin
-                    B_q0[i*ELEM_BITS +: ELEM_BITS]
-                        <= B_flat[(unsigned'(B_address0) * PACK) + i];
-                end
+        // -------- Puerto B --------
+        if (B_ce0) begin
+            for (i = 0; i < PACK; i = i + 1) begin
+                B_q0[i*ELEM_BITS +: ELEM_BITS]
+                    <= B_flat[(unsigned'(B_address0) * PACK) + i];
             end
         end
     end

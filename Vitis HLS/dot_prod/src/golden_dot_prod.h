@@ -5,6 +5,6 @@
 #define BITSIZE 10   // Ancho de bits de los vectores
 
 typedef ap_int<BITSIZE> data_t_in;   // Tipo de datos para los vectores de entrada
-typedef ap_uint<32> data_t_out;      // Tipo de datos para el resultado (puede variar según los valores esperados)
+typedef uint32_t data_t_out;      // Tipo de datos para el resultado (puede variar según los valores esperados)
 
 void golden_dot_prod(data_t_in A[N_ELEM], data_t_in B[N_ELEM], data_t_out *dot_prod_result);
