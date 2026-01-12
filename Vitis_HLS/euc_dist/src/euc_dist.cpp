@@ -7,7 +7,6 @@ void euc_dist (data_t_in A[N_ELEM], data_t_in B[N_ELEM], data_t_out *euc_dist_re
 	//#pragma HLS ARRAY_PARTITION variable=A type=cyclic factor=256 dim=1 //512  // original: type=cyclic
 	//#pragma HLS ARRAY_PARTITION variable=B type=cyclic factor=256 dim=1 //512 
 
-	//uint26_t square_result=0;
 	uint30_t square_result=0;
 	
 	//#pragma HLS PIPELINE

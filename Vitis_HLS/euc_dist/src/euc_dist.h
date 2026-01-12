@@ -15,7 +15,6 @@
 //typedef uint8_t T; // Tipo de variable para Vectores entrantes
 typedef ap_int<BITSIZE> data_t_in;
 
-typedef ap_uint<26> uint26_t;  // Tipo variable intermedia. No sé pq es 26 pero bueh
 typedef ap_uint<30> uint30_t;  // Tipo variable intermedia. Acá es pq se usan 30 bits pa representar 1023*1023*1024 (el máx. de euc dist antes de sqrt)
 //typedef uint32_t Tout;  // Tipo variable resultante
 typedef uint32_t data_t_out;  // Tipo variable resultado
