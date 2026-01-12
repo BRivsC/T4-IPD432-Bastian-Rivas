@@ -1,4 +1,4 @@
-<img width="610" height="224" alt="imagen" src="https://github.com/user-attachments/assets/c4462208-cfa5-4c71-b4d6-1e9d8307f592" /># Tarea 4 IPD432 2025
+# Tarea 4 IPD432 2025
 
 ## **Coprocesador de Distancia Euclidiana y Producto Punto en Nexys 4 DDR**
 
