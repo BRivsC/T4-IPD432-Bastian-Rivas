@@ -181,21 +181,22 @@ Para este instructivo se va a usar el módulo de distancia euclidiana como ejemp
 
 3. Pulsar Next hasta llegar a Part
    
-<img width="638" height="466" alt="imagen" src="https://github.com/user-attachments/assets/1a85f39b-21c2-4608-b51f-d024a6b29850" />
 
 4. En Part buscar la placa `xc7a100tcsg324-1`
    
 <img width="882" height="445" alt="imagen" src="https://github.com/user-attachments/assets/682ff178-3e5e-4e4b-b7bc-bc2145546f5c" />
 
-5. Sobre 'Sources' hacer click derecho y seleccionar 'Add Source File'
-    
- <img width="330" height="176" alt="imagen" src="https://github.com/user-attachments/assets/3503517f-a96b-476f-b54e-b263d1596262" />
+5. Seguir pulsando Next hasta completar la creación del componente
  
-6. Seleccionar los archivos dentro de la carpeta src
+6. Ir al directorio del componente nuevo mostrado por el campo Location, crear una carpeta nueva 'src' y copiar los contenidos de las carpetas del repositorio 'src' y 'tb' correspondientes al módulo. 
     
 <img width="804" height="289" alt="imagen" src="https://github.com/user-attachments/assets/ce811292-a717-489e-a04b-290e27dda426" />
 
-7. Repetir el proceso haciendo click derecho sobre 'Test Bench' y escogiendo el archivo dentro de la carpeta 'tb'
+7. Sobre 'Sources' hacer click derecho y seleccionar 'Add Source File'. Luego, seleccionar todos los archivos *exceptuando* al que comience con `tb_...`
+    
+ <img width="330" height="176" alt="imagen" src="https://github.com/user-attachments/assets/3503517f-a96b-476f-b54e-b263d1596262" />
+
+8. Repetir el proceso haciendo click derecho sobre 'Test Bench' y escogiendo únicamente el archivo que comienza con `tb_...`
 
 
 Pasos para definir una función top y empezar a sintetizar
@@ -207,13 +208,19 @@ Pasos para definir una función top y empezar a sintetizar
    
 <img width="329" height="221" alt="imagen" src="https://github.com/user-attachments/assets/f86ae328-90d3-4d06-91b8-3a3214f5aff7" />
 
-5. Buscar 'top', poner Browse y esperar a que cargue el listado de funciones
-[Uploading imagen.png…]()
-6. Seleccionar `euc_dist...` del listado
-4. De no aparecer: entrar a Source Editor y pegar la siguiente línea:
+4. Buscar 'top', poner Browse y esperar a que cargue el listado de funciones
+<img width="554" height="203" alt="imagen" src="https://github.com/user-attachments/assets/d68a0b10-e630-490a-9f23-95a4867a993e" />
+
+
+5. Seleccionar `euc_dist...` del listado
+
+*Nota: La herramienta parece tener problemas encontrando funciones automáticamente cuando se trabaja con workspaces. El workaround se presenta en el paso 5.1*
+
+5.1. De no aparecer: entrar a Source Editor y pegar la siguiente línea:
 ```
 syn.top=euc_dist
 ```
+
 
 <img width="378" height="135" alt="imagen" src="https://github.com/user-attachments/assets/2830e1bd-590c-4ebb-9f12-821009b3b026" />
 
@@ -236,16 +243,17 @@ Los archivos de diseño se encuentran en:
 Pasos:
 
 1. Crear proyecto nuevo
-2. Agregar directorio `Vivado/src`
-3. Agregar constraint de Nexys 4 DDR dentro de `Vivado/constr`
-4. Seleccionar placa xc7a100tcsg324-1 
+2. Seleccionar placa `xc7a100tcsg324-1`
+3. Agregar directorio `Vivado/src`
+4. Agregar constraint de Nexys 4 DDR dentro de `Vivado/constr`
 5. Importar IP de clk wizard agregando al proyecto la carpeta `Vivado/ip/clk_wiz` 
 6. Empaquetar módulos de `euc_dist` y `dot_prod` si no se ha hecho.
 7. Seleccionar IP Catalog, hacer click derecho en cualquier carpeta > Add Repository > Escoger donde estén las IPs extraídas
-8. Alternativa: Se puede revisar el código en Verilog y VHDL del módulo HLS en su respectiva carpeta dentro de `hls/impl/`
-9. Implementar
-10. Generar bitstream
-11. Programar la FPGA
+8. Hacer doble click en las IPs `Dot_prod` y `Euc_dist` para importarlas al proyecto
+9. Alternativa: Se puede revisar el código en Verilog y VHDL del módulo HLS en su respectiva carpeta dentro de `hls/impl/`
+10. Implementar
+11. Generar bitstream
+12. Programar la FPGA
 
 ---
 
@@ -284,7 +292,7 @@ con margen positivo de WNS.
 
 ---
 
-### Latencia (ignorando comunicación)
+### Latencia
 
 | Operación            | Latencia aproximada |
 | -------------------- | ------------------- |
@@ -298,24 +306,25 @@ con margen positivo de WNS.
 
 ## 10. Uso de recursos
 
-El diseño final cumple:
+El diseño final contiene los siguientes recursos:
 
-* 38922 LUT
-* 45966 FF
+* 35752 LUT
+* 40125 FF
 * 128 DSP
 
-permitiendo integrar UART, memoria y control sin saturar la FPGA.
 
 ---
 
 ## 11. Tiempos de síntesis
 
-| Etapa                 | Tiempo        |
-| --------------------- | ------------- |
-| C Synth Euc Dist      | ~2 min 17 seg |
-| C Synth Dot Prod      | ~1 min  2 seg |
-| Vivado Synthesis      | ~26 min       |
-| Vivado Implementation | ~16 min       |
+| Etapa                 | Tiempo aprox.|
+| --------------------- | ------------ |
+| C Synth Euc Dist      | 2 min        |
+| Package Dot Prod      | 1 min        |
+| C Synth Dot Prod      | 1 min        |
+| Package Dot Prod      | 1 min        |
+| Vivado Synthesis      | 21 min       |
+| Vivado Implementation | 15 min       |
 
 ---
 
@@ -327,4 +336,4 @@ Este proyecto demuestra cómo **Vitis HLS** permite explorar arquitecturas altam
 * La organización de memoria es crítica
 * El paralelismo debe balancearse con dependencias de datos
 
-El coprocesador final logra integrar **operaciones matemáticas complejas, paralelismo, memoria y comunicación UART** en un sistema funcional y validado sobre hardware real.
+El coprocesador final logra integrar operaciones matemáticas complejas, paralelismo, memoria y comunicación UART en un sistema funcional y validado sobre hardware real. Queda como trabajo futuro experimentar con las otras arquitecturas de memoria (ap_memory de 1 o 2 puertos, BRAM, etc.) y evaluar cómo se comportan.
