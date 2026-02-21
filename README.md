@@ -265,18 +265,21 @@ Los scripts se encuentran en:
 /MATLAB
 ```
 
-* `coprocessorTesting.m`
-* `command2dev.m`
-* `write2dev.m`
+* `coprocessorTesting.m` contiene los llamados a funciones y algunas pruebas para ver el comportamiento del diseño
+* `command2dev.m` posee la conversión de comandos hacia códigos binarios reconocibles por el diseño
+* `write2dev.m` maneja la escritura de valores en la memoria del diseño a partir de archivos de texto en el host
 
-Estos permiten:
+Alternativamente, si se desea mandar 1 mensaje a la vez se puede utilizar **hterm**.
 
-* Enviar vectores a la FPGA
-* Ejecutar ambas operaciones
-* Comparar con resultados software
+### Ejecución del script
 
-Alternativamente, si se desea mandar 1 mensaje a la vez sugiero probar con **hterm**
+El script `coprocessorTesting.m` está estructurado en distintas secciones de código demarcadas con `%%` con las que se entregan varios tests prearmados. Dentro del código hay comentarios que dan sugerencias de cómo utilizarlo.
 
+## Resultados con el script
+
+Considerando el cálculo de la distancia euclideana, como el formato trabajado de los números es binario puro, el cálculo de la raíz cuadrada introduce un error en sus resultados. En la consola de Matlab se observa como una diferencia entre lo calculado con hardware (Euc HW) y el golden standard (Euc Gold) cuya magnitud oscila por el orden de los cientos y, en un caso extremo, puede llegar hasta 1023.
+
+Por otra parte, el producto punto no se logra implementar de forma satisfactoria con el diseño planteado dado que se obtienen inconsistencias con la interfaz de la memoria. En la consola se observa como 
 
 ---
 
@@ -284,11 +287,7 @@ Alternativamente, si se desea mandar 1 mensaje a la vez sugiero probar con **hte
 
 ### Frecuencia
 
-El diseño cumple timing a:
-
-* **100 MHz**
-
-con margen positivo de WNS.
+El diseño cumple timing con un reloj de 100 MHz, con margen positivo en WNS de 0.072 ns.
 
 ---
 
@@ -298,8 +297,6 @@ con margen positivo de WNS.
 | -------------------- | ------------------- |
 | Distancia euclidiana | ~25 ciclos          |
 | Producto punto       | ~14 ciclos          |
-
-
 
 
 ---
@@ -330,10 +327,15 @@ El diseño final contiene los siguientes recursos:
 
 ## 12. Conclusión
 
-Este proyecto demuestra cómo **Vitis HLS** permite explorar arquitecturas altamente paralelas sin escribir RTL manualmente, aunque también evidencia que:
+Este proyecto demuestra cómo **Vitis HLS** permite explorar arquitecturas altamente paralelas sin escribir RTL manualmente, aunque también evidencia que la cosimulación ayuda pero no es suficiente para verificar un diseño y que es recomendable verificar por simulación con una testbench en Vivado. Además, es crítico ver el trabajo de la memoria y verificar las interfaces sintetizadas por HLS, como se observa en el caso del producto punto y su interfaz `ap_memory`. Finalmente, se investigan a posteriori algunas alternativas para subsanar esto como delays y otros tipos de interfaz disponibles en la herramienta.
 
-* La cosimulación no es suficiente
-* La organización de memoria es crítica
-* El paralelismo debe balancearse con dependencias de datos
+En el caso de `ap_memory` se observan inconsistencias con el manejo de la señal de partida, requiriendo un único pulso para la distancia euclidiana y una señal alta continua para el producto punto, como se evidencia en las siguentes imágenes:
 
-El coprocesador final logra integrar operaciones matemáticas complejas, paralelismo, memoria y comunicación UART en un sistema funcional y validado sobre hardware real. Queda como trabajo futuro experimentar con las otras arquitecturas de memoria (ap_memory de 1 o 2 puertos, BRAM, etc.) y evaluar cómo se comportan.
+Distancia euclidiana:
+
+<img width="737" height="426" alt="sim euc dist ap mem" src="https://github.com/user-attachments/assets/d3b32596-39fd-43d1-bd61-68df2139ff74" />
+
+
+Producto punto:
+
+<img width="604" height="427" alt="sim dot prod ap mem" src="https://github.com/user-attachments/assets/64fc2f32-bb11-4e46-a241-9a835b58b030" />
